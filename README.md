@@ -1,0 +1,2 @@
+# BlueArchiveDownloaderJP
+BlueArchiveDownloaderJP

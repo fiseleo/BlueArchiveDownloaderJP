@@ -1,5 +1,4 @@
 # BlueArchiveDownloaderJP
-# Blue Archive JP downloader
 # "Blue Archive" is a registered trademark of NAT GAMES Co., Ltd. and Yostar Co., Ltd. This repository is not affiliated with NEXON Korea Corp., NEXON GAMES Co., Ltd., and Yostar Co., Ltd. All game resources are copyrighted to their respective owners.
 
 

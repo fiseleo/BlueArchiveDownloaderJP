@@ -1,0 +1,102 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\1100853\\Desktop\\BA\\BAdownloadRE\\BAdownload\\BAdownload.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\1100853\\Desktop\\BA\\BAdownloadRE\\BAdownload\\BAdownload.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\1100853\\Desktop\\BA\\BAdownloadRE\\BAdownload\\BAdownload.csproj",
+        "projectName": "BAdownload",
+        "projectPath": "C:\\Users\\1100853\\Desktop\\BA\\BAdownloadRE\\BAdownload\\BAdownload.csproj",
+        "packagesPath": "C:\\Users\\1100853\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\1100853\\Desktop\\BA\\BAdownloadRE\\BAdownload\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\1100853\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "K4os.Hash.xxHash": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "MemoryPack": {
+              "target": "Package",
+              "version": "[1.21.1, )"
+            },
+            "MemoryPack.Generator": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.21.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Standart.Hash.xxHash": {
+              "target": "Package",
+              "version": "[4.0.5, )"
+            },
+            "System.Data.HashFunction.xxHash": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "XXHash3.NET": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "xxHashSharp": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

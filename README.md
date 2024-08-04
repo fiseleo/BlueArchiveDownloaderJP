@@ -4,6 +4,8 @@
 
 A small project that downloads all assets of the Japan-Server version of Blue Archive . The script updates the assets and even its own parameters on its own, so all you have to do is execute the BAdownloader.exe after every update to get the latest files.
 
+To specify a specific version of the apk file, run the program with the -f parameter, for example: `BAdownload.exe -f 1.456789`
+
 
 [Releases](<https://github.com/fiseleo/BlueArchiveDownloaderJP/tree/main> "Title")
 

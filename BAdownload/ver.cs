@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using BAdownload;
 using Newtonsoft.Json.Linq;
 
 class ver
@@ -37,7 +38,7 @@ class ver
             if (File.Exists(apkVersionPath))
             {
                 string apkVersion = File.ReadAllText(apkVersionPath);
-                if (apkVersion == latestClientVersion)
+                if (GlobalData.IsForcedVersion || apkVersion == latestClientVersion)
                 {
                     Console.WriteLine("APK version matches the online version. Starting download...");
                     Program.ProgremMain(args);

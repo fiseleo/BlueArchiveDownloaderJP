@@ -71,8 +71,8 @@ internal class DownloadFiles
         foreach (var mediaResource in mediaResources)
         {
             string mediaUrl = $"{BaseUrl}/MediaResources/{mediaResource.Path}";
-            string destinationPath = Path.Combine(downloadDirectory, "MediaResources", Path.GetDirectoryName(mediaResource.Path) ?? string.Empty);
-            string destination = Path.Combine(destinationPath, mediaResource.FileName);
+            string destinationDirectory = Path.Combine(downloadDirectory, "MediaResources", Path.GetDirectoryName(mediaResource.Path) ?? string.Empty);
+            string destination = Path.Combine(destinationDirectory, mediaResource.FileName);
             
             if (File.Exists(destination))
             {
@@ -82,9 +82,9 @@ internal class DownloadFiles
                 continue;
             }
             // Create directory if it doesn't exist
-            if (!Directory.Exists(destinationPath))
+            if (!Directory.Exists(destinationDirectory))
             {
-                Directory.CreateDirectory(destinationPath);
+                Directory.CreateDirectory(destinationDirectory);
             }
     
             if (DownloadFile(mediaUrl, destination, mediaResource.Crc, httpClient, totalFiles, currentFile))

@@ -1,4 +1,3 @@
-
 internal class DownloadFiles
 {
     private static string BaseUrl;
@@ -50,8 +49,12 @@ internal class DownloadFiles
             string destination = Path.Combine(downloadDirectory, "BundleFile", fileName);
             if (File.Exists(destination))
             {
-                Console.Write($"\rFile already exists locally: {destination}. Skipping download.".PadRight(Console.WindowWidth - 1));
-                Console.Out.Flush();
+                //considering someone may execute it in VS Code terminal,which is not a dedciated console
+                if (ConsoleIsAvailable())
+                {
+                    Console.Write($"\rFile already exists locally: {destination}. Skipping download.".PadRight(Console.WindowWidth - 1));
+                    Console.Out.Flush();
+                }
                 currentFile++;
                 continue;
             }
@@ -67,10 +70,10 @@ internal class DownloadFiles
 
         foreach (var mediaResource in mediaResources)
         {
-            
             string mediaUrl = $"{BaseUrl}/MediaResources/{mediaResource.Path}";
-            string destinationDirectory = Path.Combine(downloadDirectory, "MediaResources", mediaResource.Path);
+            string destinationDirectory = Path.Combine(downloadDirectory, "MediaResources", Path.GetDirectoryName(mediaResource.Path) ?? string.Empty);
             string destination = Path.Combine(destinationDirectory, mediaResource.FileName);
+            
             if (File.Exists(destination))
             {
                 Console.Write($"\rFile already exists locally: {destination}. Skipping download.".PadRight(Console.WindowWidth - 1));
@@ -97,6 +100,7 @@ internal class DownloadFiles
             currentFile++;
         }
     }
+
     private static void DownloadTableBundle(List<(string Name, long Crc)> files, string downloadDirectory, HttpClient httpClient, int totalFiles)
     {
         int currentFile = 0;

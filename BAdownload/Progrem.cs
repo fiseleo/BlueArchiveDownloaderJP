@@ -22,7 +22,7 @@ internal class Program
             {
                 { "TableCatalog.bytes", "TableBundles/TableCatalog.bytes" },
                 { "bundleDownloadInfo.json", "Android/bundleDownloadInfo.json" },
-                { "MediaCatalog.bytes", "MediaResources/MediaCatalog.bytes" }
+                { "MediaCatalog.bytes", "MediaResources/Catalog/MediaCatalog.bytes" }
             };
 
             var downloadTasks = new List<Task>();

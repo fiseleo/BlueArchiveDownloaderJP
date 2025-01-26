@@ -6,6 +6,7 @@ A small project that downloads all assets of the Japan-Server version of Blue Ar
 The first startup will automatically download Chrome, which will take a long time.
 To specify a specific version of the apk file, run the program with the -f parameter, for example: `BAdownload.exe -f 1.23.456789`
 
+Thanks starik222 leo0215
 
 [Releases](<https://github.com/fiseleo/BlueArchiveDownloaderJP/tree/main> "Title")
 

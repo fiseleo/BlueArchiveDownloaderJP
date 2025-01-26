@@ -1,14 +1,11 @@
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
+
 using Newtonsoft.Json.Linq;
 
-class url
+class Url
 {
-    public static async Task urlMain(string[] args)
+    public static async Task UrlMain(string[] args)
     {
-        string urlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "python", "APK", "url.txt");
+        string urlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads", "XAPK", "Processed","url.txt");
         try
         {
             string urlContent = File.ReadAllText(urlFilePath); 
@@ -40,7 +37,7 @@ class url
                                     {
                                         if (foundSecondRoot)
                                         {
-                                            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "python", "APK", "AddressablesCatalogUrlRoot.txt");
+                                            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads", "XAPK" ,"Processed", "AddressablesCatalogUrlRoot.txt");
                                             await File.WriteAllTextAsync(filePath, addressablesCatalogUrlRoot);
                                             Console.WriteLine("AddressablesCatalogUrlRoot: " + addressablesCatalogUrlRoot);
                                             break; 
@@ -84,7 +81,7 @@ class url
 
         try
         {
-            ver.verMain(args);
+            await Downloadsource.DownloadsourceMain(args);
         }
         catch (Exception e)
         {

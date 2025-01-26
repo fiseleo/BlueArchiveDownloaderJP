@@ -1,39 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Text;
+using RestSharp;
 
-internal class Program
+
+class Downloadsource
 {
-    private static readonly HttpClient client = new HttpClient();
+    private static readonly RestClient client = new RestClient();
 
-    public static async Task ProgremMain(string[] args)
+    public static async Task DownloadsourceMain(string[] args)
     {
         try
         {
-            // Set console output encoding to UTF-8
+            // 設定 Console 輸出編碼（如需支援中文或 UTF-8）
             Console.OutputEncoding = Encoding.UTF8;
-            string addressablesCatalogUrlRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "python", "APK", "AddressablesCatalogUrlRoot.txt");
+
+            // 讀取基本 URL（假設已存在一個 AddressablesCatalogUrlRoot.txt ）
+            string addressablesCatalogUrlRootPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Downloads",
+                "XAPK",
+                "Processed",
+                "AddressablesCatalogUrlRoot.txt"
+            );
             string baseURL = File.ReadAllText(addressablesCatalogUrlRootPath).Trim();
 
+            // 準備要下載的檔案對應
             var fileMappings = new Dictionary<string, string>
-            {
-                { "TableCatalog.bytes", "TableBundles/TableCatalog.bytes" },
-                { "bundleDownloadInfo.json", "Android/bundleDownloadInfo.json" },
-                { "MediaCatalog.bytes", "MediaResources/Catalog/MediaCatalog.bytes" }
-            };
+                {
+                    { "TableCatalog.bytes",      "TableBundles/TableCatalog.bytes" },
+                    { "bundleDownloadInfo.json", "Android/bundleDownloadInfo.json" },
+                    { "MediaCatalog.bytes",      "MediaResources/Catalog/MediaCatalog.bytes" }
+                };
 
+            // 建立一個串列來裝所有下載任務
             var downloadTasks = new List<Task>();
 
+            // 逐一建立下載工作
             foreach (var fileMapping in fileMappings)
             {
                 string fileUrl = $"{baseURL}/{fileMapping.Value}";
                 string localFilePath = GetLocalFilePath(fileMapping.Key);
+
                 Console.WriteLine($"Preparing to download file: {fileUrl}");
                 Console.WriteLine($"Local file path: {localFilePath}");
 
+                // 如果本地檔案已經存在，刪除
                 if (File.Exists(localFilePath))
                 {
                     File.Delete(localFilePath);
@@ -44,13 +54,15 @@ internal class Program
                     Console.WriteLine($"File {localFilePath} does not exist, no need to delete.");
                 }
 
-                var downloadTask = Task.Run(async () => await DownloadFileWithTimeout(fileUrl, localFilePath, TimeSpan.FromMinutes(5)));
-                Console.WriteLine($"Download task added: {fileUrl}");
-                downloadTasks.Add(downloadTask);
+                // 新增非同步下載任務
+                downloadTasks.Add(DownloadFileWithRestSharp(fileUrl, localFilePath));
             }
-            Thread.Sleep(15000);
 
-            // Check if all files exist
+            // 等待所有下載執行完畢
+            Console.WriteLine("Waiting for all downloads to complete...");
+            await Task.WhenAll(downloadTasks);
+
+            // 確認檔案是否都下載成功
             bool allFilesExist = true;
             foreach (var fileMapping in fileMappings)
             {
@@ -58,18 +70,15 @@ internal class Program
                 if (!File.Exists(localFilePath))
                 {
                     Console.WriteLine($"File {localFilePath} does not exist.");
-                    string fileUrl = $"{baseURL}/{fileMapping.Value}";
                     allFilesExist = false;
-                    break;
                 }
             }
 
             if (allFilesExist)
             {
                 Console.WriteLine("All files downloaded successfully.");
-                await Task.WhenAll(downloadTasks);
-                // Assuming Bytes.bytesMain is a valid method in your context
-                Bytes.bytesMain(args);
+                
+                await Processedbytes.ProcessedbytesMain(args);
             }
             else
             {
@@ -83,15 +92,17 @@ internal class Program
         }
     }
 
-    private static async Task DownloadFileWithTimeout(string fileUrl, string localFilePath, TimeSpan timeout)
+    private static async Task DownloadFileWithRestSharp(string fileUrl, string localFilePath)
     {
         try
         {
-            HttpResponseMessage response = await Task.Run(() => client.GetAsync(fileUrl)).ConfigureAwait(false);
             Console.WriteLine($"Starting to download file: {fileUrl}");
-            Console.WriteLine($"HTTP request status code: {response.StatusCode}");
 
-            if (response.IsSuccessStatusCode)
+            var request = new RestRequest(fileUrl, Method.Get);
+            RestResponse response = await client.ExecuteAsync(request);
+
+            // 檢查是否下載成功
+            if (response.IsSuccessful)
             {
                 Console.WriteLine($"Processing file path: {localFilePath}");
                 string directoryPath = Path.GetDirectoryName(localFilePath);
@@ -101,24 +112,14 @@ internal class Program
                     Directory.CreateDirectory(directoryPath);
                 }
 
-                Console.WriteLine($"Creating file stream: {localFilePath}");
-                using (FileStream fileStream = File.Create(localFilePath))
-                {
-                    Console.WriteLine($"Starting to copy content to file: {localFilePath}");
-                    await Task.Run(() => response.Content.CopyToAsync(fileStream)).ConfigureAwait(false);
-                }
-
+                Console.WriteLine($"Writing content to file: {localFilePath}");
+                await File.WriteAllBytesAsync(localFilePath, response.RawBytes);
                 Console.WriteLine($"File {localFilePath} downloaded successfully.");
             }
             else
             {
                 Console.WriteLine($"File {localFilePath} download failed, error code: {response.StatusCode}");
             }
-        }
-        catch (HttpRequestException hre)
-        {
-            Console.WriteLine($"HTTP request error: {hre.Message}");
-            Console.WriteLine(hre.StackTrace);
         }
         catch (Exception ex)
         {
@@ -131,8 +132,10 @@ internal class Program
     {
         try
         {
+            // 依副檔名決定存放在 bytes/ 或 json/ 資料夾
             string subDirectory = fileName.EndsWith(".bytes") ? "bytes" : "json";
             string localFilePath = Path.Combine("Downloads", subDirectory, fileName);
+
             string directoryPath = Path.GetDirectoryName(localFilePath);
             if (!Directory.Exists(directoryPath))
             {
@@ -148,3 +151,4 @@ internal class Program
         }
     }
 }
+

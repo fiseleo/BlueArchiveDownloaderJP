@@ -1,25 +1,43 @@
-using BAdownload;
-using System;
-using System.IO;
+
 using System.IO.Compression;
 
-class APKzip
+class UnXAPK
 {
-    public static async void zipMain(string[] args)
+    public static async Task UnXAPKMain(string[] args)
     {
-        if (string.IsNullOrEmpty(GlobalData.XapkFile))
+        string rootDirectory = Directory.GetCurrentDirectory();
+        string downloadPath = Path.Combine(rootDirectory, "Downloads", "XAPK");
+        if (!Directory.Exists(downloadPath))
         {
-            Console.WriteLine($"Error: APK file not found, the program will be closed");
+            Console.WriteLine("XAPK 下載目錄不存在，請先下載 XAPK 檔案。");
+            return;
         }
-        //string downloadedApkRelativePath = @"python\APK\com.YostarJP.BlueArchive.apk";
-        string extractionRelativePath = @"python\APK\unzip";
 
         try
         {
-            string currentDirectory = Environment.CurrentDirectory;
-            string extractionPath = Path.Combine(currentDirectory, extractionRelativePath);
-            if (await UnpackZip(GlobalData.XapkFile, extractionPath))
+            // 解壓縮目的資料夾 (Unzip)
+            // 建議只用 downloadPath 再加 "Unzip"，不需重複合併 rootDirectory
+            string extractionPath = Path.Combine(downloadPath, "Unzip");
+            if (!Directory.Exists(extractionPath))
             {
+                Directory.CreateDirectory(extractionPath);
+            }
+
+            // 尋找第一個 .xapk 檔案
+            string xapkFile = Directory
+                .GetFiles(downloadPath, "*.xapk", SearchOption.TopDirectoryOnly)
+                .FirstOrDefault();
+
+            if (xapkFile == null)
+            {
+                Console.WriteLine("找不到任何 .xapk 檔案。");
+                return;
+            }
+
+            // 解壓縮 XAPK
+            if (await UnpackZip(xapkFile, extractionPath))
+            {
+                // 若 XAPK 解壓後出現 .apk，繼續解壓
                 foreach (var apkFile in Directory.GetFiles(extractionPath, "*.apk", SearchOption.TopDirectoryOnly))
                 {
                     if (!await UnpackZip(apkFile, extractionPath))
@@ -35,15 +53,13 @@ class APKzip
                 return;
             }
 
-
-
             Console.WriteLine("APK extracted successfully!");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
         }
-        await APKver.verMain(args);
+        await Hex.HexMain(args);
     }
 
     private static async Task<bool> UnpackZip(string zipFile, string extractionPath)
@@ -60,7 +76,7 @@ class APKzip
                     string entryDirectory = Path.GetDirectoryName(entryFullName);
 
                     if (string.IsNullOrEmpty(entryDirectory))
-                        continue; // Skip if the entry is for directory
+                        continue; // 若 entry 是純資料夾 (空字串) 就略過
 
                     if (!Directory.Exists(entryDirectory))
                         Directory.CreateDirectory(entryDirectory);
@@ -68,7 +84,7 @@ class APKzip
                     if (File.Exists(entryFullName))
                     {
                         Console.WriteLine($"Skipped: {entryFullName} already exists.");
-                        continue; // Skip if the file already exists
+                        continue;
                     }
 
                     entry.ExtractToFile(entryFullName);
@@ -81,6 +97,10 @@ class APKzip
             Console.WriteLine($"Error: {ex.Message}");
             return false;
         }
+        finally
+        {
+            // 即使這裡用不上 async-await 實際非同步IO，但保留方法簽名以方便流程統一
+            await Task.CompletedTask;
+        }
     }
 }
-

@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using PuppeteerSharp;
+using System.Net.Http;
+using System.Collections.Specialized;
 
 namespace BAdownload
 {
@@ -10,7 +12,7 @@ namespace BAdownload
             // 解析參數：假設程式呼叫方式為
             // BAdownload.exe -f 1.456789
             // 則需要抓取 -f 後的值來組合下載連結。
-
+             bool reDownload = false;
             string rootDirectory = Directory.GetCurrentDirectory();
             if (!Directory.Exists(Path.Combine(rootDirectory, "Downloads", "XAPK")))
             {
@@ -22,16 +24,76 @@ namespace BAdownload
                 var files = Directory.GetFiles(downloadPath);
                 foreach (var file in files)
                 {
-                    File.Delete(file);
+                    if (file.EndsWith(".xapk"))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        File.Delete(file);
+                    }
                 }
             }
             string versionArg = null;
+            bool directDownload = false;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].Equals("-f", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
                 {
                     versionArg = args[i + 1];
                     i++;
+                }
+                else if (args[i].Equals("-d", StringComparison.OrdinalIgnoreCase))
+                {
+                    directDownload = true;
+                }
+                else if (args[i].Equals("-r", StringComparison.OrdinalIgnoreCase))
+                {
+                    reDownload = true;
+                }
+            }
+            if (directDownload && !reDownload)
+            {
+                Console.WriteLine(
+                    "detected download releated argument attached,but not added redownload argument,so skip redownload apk if xapk existed"
+                );
+            }
+            
+            bool xapkExists = false;
+            string existingXapkFile = null;
+            if (Directory.Exists(downloadPath))
+            {
+                var xapkFiles = Directory.GetFiles(downloadPath, "*.xapk");
+                if (xapkFiles.Length > 0)
+                {
+                    xapkExists = true;
+                    existingXapkFile = xapkFiles[0];
+                    Console.WriteLine($"發現已存在的XAPK檔案: {Path.GetFileName(existingXapkFile)}");
+                    
+                    if (!reDownload)
+                    {
+                        Console.WriteLine("跳過下載，直接使用現有檔案。");
+                         foreach (var dir in new[] { "Unzip", "Processed" })
+                        {
+                            var path = Path.Combine(rootDirectory, "Downloads", "XAPK", dir);
+                            if (Directory.Exists(path))
+                                Directory.Delete(path, true);
+                        }
+                        await UnXAPK.UnXAPKMain(args);
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("偵測到-r參數，將刪除現有XAPK檔案並重新下載。");
+                        File.Delete(existingXapkFile);
+                        //also delete Unzip and Processed folder
+                        foreach (var dir in new[] { "Unzip", "Processed" })
+                        {
+                            var path = Path.Combine(rootDirectory, "Downloads", "XAPK", dir);
+                            if (Directory.Exists(path))
+                                Directory.Delete(path, true);
+                        }
+                    }
                 }
             }
 
@@ -50,6 +112,79 @@ namespace BAdownload
             }
 
             Console.WriteLine($"準備下載網址: {downloadUrl}");
+
+            if (directDownload)
+            {
+                //reserved function,because cloudflare is blocking httpclient
+                Console.WriteLine("使用直接下載模式...");
+                try
+                {
+                    using (var httpClient = new HttpClient())
+                    {
+
+                        var content = new StringContent(string.Empty);
+                        var response = await httpClient.PostAsync(downloadUrl, content);
+                        
+                        if (response.StatusCode == System.Net.HttpStatusCode.Found)
+                        {
+                            string redirectUrl = response.Headers.Location.ToString();
+                            Console.WriteLine($"取得重定向連結: {redirectUrl}");
+                            
+                            var downloadResponse = await httpClient.GetAsync(redirectUrl);
+                            if (downloadResponse.IsSuccessStatusCode)
+                            {
+                                var fileName = Path.Combine(downloadPath, "BlueArchive.xapk");
+                                using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                                {
+                                    await downloadResponse.Content.CopyToAsync(fileStream);
+                                }
+                                Console.WriteLine($"檔案下載完成: {fileName}");
+                                await UnXAPK.UnXAPKMain(args);
+                                return;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"重定向下載失敗，狀態碼: {downloadResponse.StatusCode}");
+                            }
+                        }
+                        else if (response.IsSuccessStatusCode)
+                        {
+                            var fileName = Path.Combine(downloadPath, "BlueArchive.xapk");
+                            using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                await response.Content.CopyToAsync(fileStream);
+                            }
+                            Console.WriteLine($"檔案下載完成: {fileName}");
+                            await UnXAPK.UnXAPKMain(args);
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"直接下載失敗，狀態碼: {response.StatusCode}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"直接下載失敗: {ex.Message}");
+                }
+                Console.WriteLine("是否要使用無頭瀏覽器下載? (y/n)");
+                string input = Console.ReadLine();
+                if (input.Equals("y", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("切換回瀏覽器下載模式...");
+                }
+                else if (input.Equals("n", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Terminating Application");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input, Terminating Application");
+                    return;
+                }
+            }
 
             // 下載/更新 Chromium
             var browserFetcher = new BrowserFetcher();

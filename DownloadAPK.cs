@@ -12,7 +12,7 @@ namespace BAdownload
             // 解析參數：假設程式呼叫方式為
             // BAdownload.exe -f 1.456789
             // 則需要抓取 -f 後的值來組合下載連結。
-
+             bool reDownload = false;
             string rootDirectory = Directory.GetCurrentDirectory();
             if (!Directory.Exists(Path.Combine(rootDirectory, "Downloads", "XAPK")))
             {
@@ -24,7 +24,14 @@ namespace BAdownload
                 var files = Directory.GetFiles(downloadPath);
                 foreach (var file in files)
                 {
-                    File.Delete(file);
+                    if (file.EndsWith(".xapk"))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        File.Delete(file);
+                    }
                 }
             }
             string versionArg = null;
@@ -39,6 +46,54 @@ namespace BAdownload
                 else if (args[i].Equals("-d", StringComparison.OrdinalIgnoreCase))
                 {
                     directDownload = true;
+                }
+                else if (args[i].Equals("-r", StringComparison.OrdinalIgnoreCase))
+                {
+                    reDownload = true;
+                }
+            }
+            if (directDownload && !reDownload)
+            {
+                Console.WriteLine(
+                    "detected download releated argument attached,but not added redownload argument,so skip redownload apk if xapk existed"
+                );
+            }
+            
+            bool xapkExists = false;
+            string existingXapkFile = null;
+            if (Directory.Exists(downloadPath))
+            {
+                var xapkFiles = Directory.GetFiles(downloadPath, "*.xapk");
+                if (xapkFiles.Length > 0)
+                {
+                    xapkExists = true;
+                    existingXapkFile = xapkFiles[0];
+                    Console.WriteLine($"發現已存在的XAPK檔案: {Path.GetFileName(existingXapkFile)}");
+                    
+                    if (!reDownload)
+                    {
+                        Console.WriteLine("跳過下載，直接使用現有檔案。");
+                         foreach (var dir in new[] { "Unzip", "Processed" })
+                        {
+                            var path = Path.Combine(rootDirectory, "Downloads", "XAPK", dir);
+                            if (Directory.Exists(path))
+                                Directory.Delete(path, true);
+                        }
+                        await UnXAPK.UnXAPKMain(args);
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("偵測到-r參數，將刪除現有XAPK檔案並重新下載。");
+                        File.Delete(existingXapkFile);
+                        //also delete Unzip and Processed folder
+                        foreach (var dir in new[] { "Unzip", "Processed" })
+                        {
+                            var path = Path.Combine(rootDirectory, "Downloads", "XAPK", dir);
+                            if (Directory.Exists(path))
+                                Directory.Delete(path, true);
+                        }
+                    }
                 }
             }
 

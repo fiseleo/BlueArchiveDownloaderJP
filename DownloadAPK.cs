@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using PuppeteerSharp;
+using System.Net.Http;
+using System.Collections.Specialized;
 
 namespace BAdownload
 {
@@ -26,12 +28,17 @@ namespace BAdownload
                 }
             }
             string versionArg = null;
+            bool directDownload = false;
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].Equals("-f", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
                 {
                     versionArg = args[i + 1];
                     i++;
+                }
+                else if (args[i].Equals("-d", StringComparison.OrdinalIgnoreCase))
+                {
+                    directDownload = true;
                 }
             }
 
@@ -50,6 +57,79 @@ namespace BAdownload
             }
 
             Console.WriteLine($"準備下載網址: {downloadUrl}");
+
+            if (directDownload)
+            {
+                //reserved function,because cloudflare is blocking httpclient
+                Console.WriteLine("使用直接下載模式...");
+                try
+                {
+                    using (var httpClient = new HttpClient())
+                    {
+
+                        var content = new StringContent(string.Empty);
+                        var response = await httpClient.PostAsync(downloadUrl, content);
+                        
+                        if (response.StatusCode == System.Net.HttpStatusCode.Found)
+                        {
+                            string redirectUrl = response.Headers.Location.ToString();
+                            Console.WriteLine($"取得重定向連結: {redirectUrl}");
+                            
+                            var downloadResponse = await httpClient.GetAsync(redirectUrl);
+                            if (downloadResponse.IsSuccessStatusCode)
+                            {
+                                var fileName = Path.Combine(downloadPath, "BlueArchive.xapk");
+                                using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                                {
+                                    await downloadResponse.Content.CopyToAsync(fileStream);
+                                }
+                                Console.WriteLine($"檔案下載完成: {fileName}");
+                                await UnXAPK.UnXAPKMain(args);
+                                return;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"重定向下載失敗，狀態碼: {downloadResponse.StatusCode}");
+                            }
+                        }
+                        else if (response.IsSuccessStatusCode)
+                        {
+                            var fileName = Path.Combine(downloadPath, "BlueArchive.xapk");
+                            using (var fileStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                await response.Content.CopyToAsync(fileStream);
+                            }
+                            Console.WriteLine($"檔案下載完成: {fileName}");
+                            await UnXAPK.UnXAPKMain(args);
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"直接下載失敗，狀態碼: {response.StatusCode}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"直接下載失敗: {ex.Message}");
+                }
+                Console.WriteLine("是否要使用無頭瀏覽器下載? (y/n)");
+                string input = Console.ReadLine();
+                if (input.Equals("y", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("切換回瀏覽器下載模式...");
+                }
+                else if (input.Equals("n", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Terminating Application");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input, Terminating Application");
+                    return;
+                }
+            }
 
             // 下載/更新 Chromium
             var browserFetcher = new BrowserFetcher();

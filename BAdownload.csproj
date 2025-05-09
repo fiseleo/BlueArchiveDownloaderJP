@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Win32Icon>App.ico</Win32Icon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +19,7 @@
     <PackageReference Include="PuppeteerSharp" Version="20.0.5" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
+    <None Include="App.ico" />
   </ItemGroup>
 
 </Project>

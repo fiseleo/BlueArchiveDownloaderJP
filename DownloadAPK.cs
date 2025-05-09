@@ -57,7 +57,7 @@ namespace BAdownload
             if (directDownload && !reDownload)
             {
                 Console.WriteLine(
-                    "detected download releated argument attached,but not added redownload argument,so skip redownload apk if xapk existed"
+                    "Detected download-related flag but no re-download flag; skipping APK re-download because an existing XAPK was found."
                 );
             }
 
@@ -70,11 +70,11 @@ namespace BAdownload
                 {
                     xapkExists = true;
                     existingXapkFile = xapkFiles[0];
-                    Console.WriteLine($"發現已存在的XAPK檔案: {Path.GetFileName(existingXapkFile)}");
+                    Console.WriteLine($"Existing XAPK file found: {Path.GetFileName(existingXapkFile)}");
 
                     if (!reDownload)
                     {
-                        Console.WriteLine("跳過下載，直接使用現有檔案。");
+                        Console.WriteLine("Skipping download; using existing file.");
                         foreach (var dir in new[] { "Unzip", "Processed" })
                         {
                             var path = Path.Combine(rootDirectory, "Downloads", "XAPK", dir);
@@ -86,7 +86,7 @@ namespace BAdownload
                     }
                     else
                     {
-                        Console.WriteLine("偵測到-r參數，將刪除現有XAPK檔案並重新下載。");
+                        Console.WriteLine("Detected -r flag; deleting existing XAPK file and re-downloading.");
                         File.Delete(existingXapkFile);
                         //also delete Unzip and Processed folder
                         foreach (var dir in new[] { "Unzip", "Processed" })
@@ -104,7 +104,7 @@ namespace BAdownload
             if (!string.IsNullOrEmpty(versionArg) && versionArg.StartsWith("1."))
             {
                 // 取小數點後的部分。例如 "1.53.323417" 只取 "323417"
-                var versionCode = versionArg.Substring(5); // 從 index=3 開始擷取
+                var versionCode = versionArg.Substring(5); // 從 index=5 開始擷取
                 downloadUrl = $"https://d.apkpure.com/b/XAPK/com.YostarJP.BlueArchive?versionCode={versionCode}&nc=arm64-v8a&sv=24";
             }
             else
@@ -113,7 +113,7 @@ namespace BAdownload
                 downloadUrl = "https://d.apkpure.com/b/XAPK/com.YostarJP.BlueArchive?version=latest";
             }
 
-            Console.WriteLine($"準備下載網址: {downloadUrl}");
+            Console.WriteLine($"Preparing download URL: {downloadUrl}");
 
             if (directDownload)
             {
@@ -162,7 +162,7 @@ namespace BAdownload
 
                 if (array == null)
                 {
-                    Console.Error.WriteLine("無法從 response.json 解析 version_list (路徑 $['1']['7']['2'] 無效或不存在)");
+                    Console.Error.WriteLine("Failed to parse version_list from response.json (path $['1']['7']['2'] is invalid or does not exist).");
                     return;
                 }
 
@@ -234,7 +234,7 @@ namespace BAdownload
 
                 if (!entries.Any())
                 {
-                    Console.Error.WriteLine("在 response.json 中找不到任何有效的 XAPK 下載連結或版本資訊。");
+                    Console.Error.WriteLine("No valid XAPK download links or version information found in response.json.");
                     return;
                 }
 
@@ -247,12 +247,12 @@ namespace BAdownload
                     var match = entries.FirstOrDefault(x => x.Version.Equals(versionArg, StringComparison.OrdinalIgnoreCase));
                     if (match == null)
                     {
-                        Console.Error.WriteLine($"指定的版本 {versionArg} 在列表中不存在或其 URL 不符合 XAPK 格式。");
+                        Console.Error.WriteLine($"The specified version {versionArg} was not found in the list or its URL is not in a valid XAPK format.");
                         return;
                     }
                     selectedUrl = match.Url;
                     selectedVersion = match.Version;
-                    Console.WriteLine($"選擇指定版本 {selectedVersion}");
+                    Console.WriteLine($"Selected specified version {selectedVersion}");
                 }
                 else
                 {
@@ -276,12 +276,12 @@ namespace BAdownload
 
                     if (latestEntry == null)
                     {
-                        Console.Error.WriteLine("無法從可用列表中確定最新版本。");
+                        Console.Error.WriteLine("Unable to determine the latest version from the available list.");
                         return;
                     }
                     selectedUrl = latestEntry.Url;
                     selectedVersion = latestEntry.Version;
-                    Console.WriteLine($"選擇最新版本 {selectedVersion}");
+                    Console.WriteLine($"Selected latest version {selectedVersion}");
                 }
                 JObject ParseMessage(string[] lines, ref int idx, int indent)
                 {
@@ -330,16 +330,16 @@ namespace BAdownload
                 // 4. 下載 XAPK
                 if (selectedUrl != null)
                 {
-                    Console.WriteLine($"準備從以下網址下載 XAPK: {selectedUrl}");
+                    Console.WriteLine($"Preparing to download XAPK from the following URL: {selectedUrl}");
                     Console.WriteLine("Downloading XAPK ...");
                     var xapkBytes = await http.GetByteArrayAsync(selectedUrl);
                     string filePath = Path.Combine(downloadPath, "BlueArchive.XAPK"); // downloadPath 是您程式碼中定義的下載路徑
                     await File.WriteAllBytesAsync(filePath, xapkBytes);
-                    Console.WriteLine($"XAPK 已儲存為: {filePath}");
+                    Console.WriteLine($"XAPK has been saved to: {filePath}");
                 }
                 else
                 {
-                     Console.Error.WriteLine("未能選擇有效的下載 URL。");
+                    Console.Error.WriteLine("Failed to select a valid download URL.");
                 }
                 await UnXAPK.UnXAPKMain(args); 
             }    
@@ -370,30 +370,29 @@ namespace BAdownload
             // 由於 Cloudflare 可能有「五秒盾」或 JS Challenge，可以用 NetworkIdle2/NetworkIdle0 盡量等待網頁完成
             try
             {
-                Console.WriteLine("嘗試載入頁面，等待 Cloudflare 驗證...");
+                Console.WriteLine("Attempting to load the page and awaiting Cloudflare verification...");
                 await page.GoToAsync(downloadUrl, WaitUntilNavigation.Networkidle2);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"載入頁面時發生錯誤: {ex.Message}");
+                Console.WriteLine($"An error occurred while loading the page: {ex.Message}");
             }
 
 
             await Task.Delay(5000); // 等待 5 秒看是否需要額外 Cloudflare 檢查
-            Console.WriteLine("開始等待檔案下載...");
-
+            Console.WriteLine("Waiting for file download to complete...");
 
             string downloadedFile = await WaitForDownloadedFileAsync(downloadPath, TimeSpan.FromSeconds(600));
             if (downloadedFile != null)
             {
-                Console.WriteLine($"檔案下載完成: {downloadedFile}");
+                Console.WriteLine($"Download complete: {downloadedFile}");
             }
             else
             {
-                Console.WriteLine("下載逾時或沒有偵測到下載檔案。");
+                Console.WriteLine("Download timed out or no file detected.");
             }
 
-            Console.WriteLine("下載程序結束，關閉瀏覽器。");
+            Console.WriteLine("Download process complete; closing browser.");
             await browser.CloseAsync();
             await UnXAPK.UnXAPKMain(args);
         }

@@ -9,7 +9,7 @@ class UnXAPK
         string downloadPath = Path.Combine(rootDirectory, "Downloads", "XAPK");
         if (!Directory.Exists(downloadPath))
         {
-            Console.WriteLine("XAPK 下載目錄不存在，請先下載 XAPK 檔案。");
+            Console.WriteLine("XAPK download directory does not exist; please download the XAPK file first.");
             return;
         }
 
@@ -30,7 +30,7 @@ class UnXAPK
 
             if (xapkFile == null)
             {
-                Console.WriteLine("找不到任何 .xapk 檔案。");
+                Console.WriteLine("No .xapk files found.");
                 return;
             }
 

@@ -13,7 +13,7 @@ class Hex
 
         if (!Directory.Exists(dataPath))
         {
-            Console.WriteLine("Data 目錄不存在，無法處理。");
+            Console.WriteLine("Data directory does not exist; cannot proceed.");
             return;
         }
 
@@ -21,7 +21,7 @@ class Hex
         var dataFiles = Directory.GetFiles(dataPath, "*", SearchOption.TopDirectoryOnly);
         if (dataFiles.Length == 0)
         {
-            Console.WriteLine("Data 目錄內沒有任何檔案。");
+            Console.WriteLine("No files found in the Data directory.");
             return;
         }
 
@@ -35,13 +35,13 @@ class Hex
             Directory.CreateDirectory(outputDir);
         }
 
-        Console.WriteLine($"開始處理 {dataFiles.Length} 個檔案...");
+        Console.WriteLine($"Starting to process {dataFiles.Length} files...");
         int processedCount = 0;
 
         foreach (var filePath in dataFiles)
         {
             string fileName = Path.GetFileName(filePath);
-            Console.WriteLine($"\n處理檔案: {fileName}");
+            Console.WriteLine($"\nProcessing file: {fileName}");
 
             // 1) 讀取檔案 bytes
             byte[] fileData;
@@ -55,7 +55,7 @@ class Hex
             int index = FindSequence(fileData, sequence);
             if (index == -1)
             {
-                Console.WriteLine("  => 未找到序列，略過。");
+                Console.WriteLine("  => Sequence not found; skipping.");
                 continue;
             }
 
@@ -63,7 +63,7 @@ class Hex
             int bytesToRemove = index + (sequence.Length / 2);
             if (bytesToRemove >= fileData.Length)
             {
-                Console.WriteLine("  => 序列位置或長度異常，無法裁切。");
+                Console.WriteLine("  => Invalid sequence position or length; unable to trim.");
                 continue;
             }
 
@@ -78,10 +78,8 @@ class Hex
             File.WriteAllBytes(newFilePath, finalData);
 
             processedCount++;
-            Console.WriteLine("  => 已成功產生新檔案: " + newFilePath);
+            Console.WriteLine("  => Successfully created new file: " + newFilePath);
         }
-
-        Console.WriteLine($"\n處理完畢，共產生 {processedCount} 個新檔案。");
         await GetDownloadLink.GetDownloadLinkMain(args);
     }
 
@@ -125,7 +123,7 @@ class Hex
             // 重新建立一個少 2 bytes 的陣列
             byte[] trimmed = new byte[data.Length - 2];
             Buffer.BlockCopy(data, 0, trimmed, 0, trimmed.Length);
-            Console.WriteLine("  => 已移除結尾 00 00。");
+            Console.WriteLine("  => Removed trailing 0x00 0x00.");
             return trimmed;
         }
         return data;

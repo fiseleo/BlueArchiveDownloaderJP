@@ -360,11 +360,14 @@ namespace BAdownload
 
             // 設定下載行為：將檔案下載到程式執行目錄 (或指定其他資料夾)
             var client = await page.Target.CreateCDPSessionAsync();
-            await client.SendAsync("Page.setDownloadBehavior", new
+
+            var parameters = new Dictionary<string, object>
             {
-                behavior = "allow",
-                downloadPath = Path.Combine(rootDirectory, "Downloads", "XAPK"),
-            });
+                ["behavior"] = "allow",
+                ["downloadPath"] = Path.Combine(rootDirectory, "Downloads", "XAPK")
+            };
+
+            await client.SendAsync("Page.setDownloadBehavior", parameters);
 
             // 導向至下載頁面，等待網頁載入完成
             // 由於 Cloudflare 可能有「五秒盾」或 JS Challenge，可以用 NetworkIdle2/NetworkIdle0 盡量等待網頁完成

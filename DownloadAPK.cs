@@ -346,6 +346,7 @@ namespace BAdownload
                     Console.Error.WriteLine("Failed to select a valid download URL.");
                 }
                 await UnXAPK.UnXAPKMain(args); 
+                return;
             }    
 
             // 下載/更新 Chromium

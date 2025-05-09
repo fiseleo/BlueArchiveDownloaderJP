@@ -133,7 +133,7 @@ namespace BAdownload
                 Console.WriteLine("Downloading response.pb ...");
                 var pbBytes = await http.GetByteArrayAsync(pbUrl);
                 // 假設 response.pb 已成功下載並寫入檔案
-                // await File.WriteAllBytesAsync("response.pb", pbBytes); // 您的原始碼已有
+                await File.WriteAllBytesAsync("response.pb", pbBytes); 
                 Console.WriteLine("Saved response.pb");
 
                 var protocPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "protoc.exe");

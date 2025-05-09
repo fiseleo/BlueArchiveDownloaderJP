@@ -2,6 +2,7 @@ using System.Diagnostics;
 using PuppeteerSharp;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using System.Text;
 
 
 namespace BAdownload
@@ -13,6 +14,9 @@ namespace BAdownload
             // 解析參數：假設程式呼叫方式為
             // BAdownload.exe -f 1.456789
             // 則需要抓取 -f 後的值來組合下載連結。
+
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding  = Encoding.UTF8;
             bool reDownload = false;
             string rootDirectory = Directory.GetCurrentDirectory();
             if (!Directory.Exists(Path.Combine(rootDirectory, "Downloads", "XAPK")))

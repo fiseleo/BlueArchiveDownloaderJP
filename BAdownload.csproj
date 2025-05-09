@@ -14,7 +14,6 @@
     <!-- 以下是你原本的 self-contained + single-file 設定 -->
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>

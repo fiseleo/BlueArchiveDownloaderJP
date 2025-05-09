@@ -8,7 +8,7 @@ The first startup will automatically download Chrome, which will take a long tim
 
 To specify a specific version of the apk file, run the program with the -f parameter, for example: `BAdownload.exe -f 1.23.456789`
 
-If you want to download without using a Chrome browser, add -d, for example: `BAdownload.exe -f 1.23.456789 -d` (Note: Currently can't download via direct download due to Cloudflare challenge, we are investigating it)
+If you want to download without using a Chrome browser, add -d, for example: `BAdownload.exe -f 1.23.456789 -d`
 
 If you want to re-download Xapk use  `-r` , it will delete xapk and redownload, mostly use when Yostar pushed new APK Update
 

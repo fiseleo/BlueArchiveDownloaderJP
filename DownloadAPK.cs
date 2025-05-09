@@ -121,7 +121,7 @@ namespace BAdownload
 
             if (directDownload)
             {
-                // 1. 下載並解析 Protobuf → JSON (這部分您已提供，此處示意性保留)
+                // 1. 下載並解析 Protobuf → JSON 
                 const string pbUrl =
                     "https://api.pureapk.com/m/v3/cms/app_version?hl=en-US&package_name=com.YostarJP.BlueArchive";
                 using var http = new HttpClient();
@@ -133,7 +133,7 @@ namespace BAdownload
                 Console.WriteLine("Downloading response.pb ...");
                 var pbBytes = await http.GetByteArrayAsync(pbUrl);
                 // 假設 response.pb 已成功下載並寫入檔案
-                await File.WriteAllBytesAsync("response.pb", pbBytes); 
+                //await File.WriteAllBytesAsync("response.pb", pbBytes);  // 原始碼已有
                 Console.WriteLine("Saved response.pb");
 
                 var protocPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "protoc.exe");

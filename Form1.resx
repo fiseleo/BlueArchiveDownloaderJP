@@ -266,7 +266,6 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;logbox.ZOrder" xml:space="preserve">
-<<<<<<< HEAD
     <value>1</value>
   </data>
   <data name="VersionText.Location" type="System.Drawing.Point, System.Drawing">
@@ -294,8 +293,6 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;VersionText.ZOrder" xml:space="preserve">
-=======
->>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

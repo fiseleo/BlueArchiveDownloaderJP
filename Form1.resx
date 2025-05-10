@@ -141,7 +141,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DelData.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="DownloadData.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 24</value>
@@ -165,7 +165,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DownloadData.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="UseChromeBrowserDownload.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -196,7 +196,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;UseChromeBrowserDownload.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="DirectDownload.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -223,7 +223,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DirectDownload.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="logbox.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft JhengHei UI, 8.25pt, style=Bold</value>
@@ -250,7 +250,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;logbox.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="VersionText.Location" type="System.Drawing.Point, System.Drawing">
     <value>192, 78</value>
@@ -277,6 +277,60 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;VersionText.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="VersionKnow.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="VersionKnow.ImageAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleRight</value>
+  </data>
+  <data name="VersionKnow.Location" type="System.Drawing.Point, System.Drawing">
+    <value>307, 81</value>
+  </data>
+  <data name="VersionKnow.Size" type="System.Drawing.Size, System.Drawing">
+    <value>206, 15</value>
+  </data>
+  <data name="VersionKnow.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="VersionKnow.Text" xml:space="preserve">
+    <value>Input BlueArchive JP APK Version</value>
+  </data>
+  <data name="&gt;&gt;VersionKnow.Name" xml:space="preserve">
+    <value>VersionKnow</value>
+  </data>
+  <data name="&gt;&gt;VersionKnow.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;VersionKnow.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;VersionKnow.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ProgressBar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 365</value>
+  </data>
+  <data name="ProgressBar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>654, 23</value>
+  </data>
+  <data name="ProgressBar.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="ProgressBar.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;ProgressBar.Name" xml:space="preserve">
+    <value>ProgressBar</value>
+  </data>
+  <data name="&gt;&gt;ProgressBar.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ProgressBar.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ProgressBar.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

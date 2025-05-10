@@ -117,4 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConfirmDownloadMessage" xml:space="preserve">
+    <value>Are you sure you want to start downloading?</value>
+  </data>
+  <data name="ConfirmDownloadTitle" xml:space="preserve">
+    <value> Please Confirm</value>
+  </data>
+  <data name="DownloadCompleteMessage" xml:space="preserve">
+    <value>Download complete!</value>
+  </data>
+  <data name="DownloadCompleteTitle" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="DownloadErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorChooseDownloadMethod" xml:space="preserve">
+    <value>Please select the download mode first: Direct / Chrome.</value>
+  </data>
 </root>

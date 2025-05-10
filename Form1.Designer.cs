@@ -35,6 +35,8 @@
             DirectDownload = new CheckBox();
             logbox = new RichTextBox();
             VersionText = new MaskedTextBox();
+            VersionKnow = new Label();
+            ProgressBar = new ProgressBar();
             SuspendLayout();
             // 
             // DelData
@@ -50,6 +52,7 @@
             resources.ApplyResources(DownloadData, "DownloadData");
             DownloadData.Name = "DownloadData";
             DownloadData.UseVisualStyleBackColor = true;
+            DownloadData.Click += DownloadData_Click;
             // 
             // UseChromeBrowserDownload
             // 
@@ -78,13 +81,27 @@
             resources.ApplyResources(VersionText, "VersionText");
             VersionText.Name = "VersionText";
             VersionText.ValidatingType = typeof(string);
-
+            VersionText.KeyPress += VersionText_KeyPress;
+            // 
+            // VersionKnow
+            // 
+            resources.ApplyResources(VersionKnow, "VersionKnow");
+            VersionKnow.Name = "VersionKnow";
+            VersionKnow.Click += label1_Click;
+            // 
+            // ProgressBar
+            // 
+            resources.ApplyResources(ProgressBar, "ProgressBar");
+            ProgressBar.Name = "ProgressBar";
+            ProgressBar.Click += ProgressBar_Click;
             // 
             // MainForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = SystemColors.Window;
+            Controls.Add(ProgressBar);
+            Controls.Add(VersionKnow);
             Controls.Add(VersionText);
             Controls.Add(logbox);
             Controls.Add(DirectDownload);
@@ -105,5 +122,7 @@
         private CheckBox DirectDownload;
         private RichTextBox logbox;
         private MaskedTextBox VersionText;
+        private Label VersionKnow;
+        private ProgressBar ProgressBar;
     }
 }

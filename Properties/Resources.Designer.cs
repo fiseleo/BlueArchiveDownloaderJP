@@ -59,5 +59,59 @@ namespace BlueArchiveGUIDownloader.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查詢類似 Are you sure you want to start downloading? 的當地語系化字串。
+        /// </summary>
+        internal static string ConfirmDownloadMessage {
+            get {
+                return ResourceManager.GetString("ConfirmDownloadMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似  Please Confirm 的當地語系化字串。
+        /// </summary>
+        internal static string ConfirmDownloadTitle {
+            get {
+                return ResourceManager.GetString("ConfirmDownloadTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Download complete! 的當地語系化字串。
+        /// </summary>
+        internal static string DownloadCompleteMessage {
+            get {
+                return ResourceManager.GetString("DownloadCompleteMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Complete 的當地語系化字串。
+        /// </summary>
+        internal static string DownloadCompleteTitle {
+            get {
+                return ResourceManager.GetString("DownloadCompleteTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Error 的當地語系化字串。
+        /// </summary>
+        internal static string DownloadErrorTitle {
+            get {
+                return ResourceManager.GetString("DownloadErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Please select the download mode first: Direct / Chrome. 的當地語系化字串。
+        /// </summary>
+        internal static string ErrorChooseDownloadMethod {
+            get {
+                return ResourceManager.GetString("ErrorChooseDownloadMethod", resourceCulture);
+            }
+        }
     }
 }

@@ -117,19 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DelData.Text" xml:space="preserve">
-    <value>清除下載資料</value>
+  <data name="ConfirmDownloadMessage" xml:space="preserve">
+    <value>確定要開始下載嗎？</value>
   </data>
-  <data name="DownloadData.Text" xml:space="preserve">
-    <value>下載資料</value>
+  <data name="ConfirmDownloadTitle" xml:space="preserve">
+    <value>請確認</value>
   </data>
-  <data name="UseChromeBrowserDownload.Text" xml:space="preserve">
-    <value>用 Chrome 瀏覽器下載</value>
+  <data name="DownloadCompleteMessage" xml:space="preserve">
+    <value>下載完成!</value>
   </data>
-  <data name="DirectDownload.Text" xml:space="preserve">
-    <value>直接下載</value>
+  <data name="DownloadCompleteTitle" xml:space="preserve">
+    <value>完成</value>
   </data>
-  <data name="VersionKnow.Text" xml:space="preserve">
-    <value>輸入蔚藍檔案的版本號(日服)</value>
+  <data name="DownloadErrorTitle" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="ErrorChooseDownloadMethod" xml:space="preserve">
+    <value>請先選擇下載模式：Direct / Chrome</value>
   </data>
 </root>

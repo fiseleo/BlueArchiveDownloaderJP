@@ -34,7 +34,10 @@
             UseChromeBrowserDownload = new CheckBox();
             DirectDownload = new CheckBox();
             logbox = new RichTextBox();
+<<<<<<< HEAD
             VersionText = new MaskedTextBox();
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
             SuspendLayout();
             // 
             // DelData
@@ -72,6 +75,7 @@
             logbox.ReadOnly = true;
             logbox.TextChanged += richTextBox1_TextChanged;
             // 
+<<<<<<< HEAD
             // VersionText
             // 
             VersionText.Culture = new System.Globalization.CultureInfo("");
@@ -80,12 +84,17 @@
             VersionText.ValidatingType = typeof(string);
 
             // 
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
             // MainForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = SystemColors.Window;
+<<<<<<< HEAD
             Controls.Add(VersionText);
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
             Controls.Add(logbox);
             Controls.Add(DirectDownload);
             Controls.Add(UseChromeBrowserDownload);
@@ -104,6 +113,9 @@
         private CheckBox UseChromeBrowserDownload;
         private CheckBox DirectDownload;
         private RichTextBox logbox;
+<<<<<<< HEAD
         private MaskedTextBox VersionText;
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
     }
 }

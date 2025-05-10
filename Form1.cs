@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 using System.Text.RegularExpressions;
+=======
+using System.Windows.Forms;
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
 
 namespace BlueArchiveGUIDownloader
 {
@@ -9,8 +13,11 @@ namespace BlueArchiveGUIDownloader
             InitializeComponent();
             Console.SetOut(new RichTextBoxWriter(logbox));
             Console.WriteLine("Blue Archive GUI Downloader");
+<<<<<<< HEAD
             VersionText.ValidatingType = typeof(string);
             VersionText.TypeValidationCompleted += VersionText_TypeValidationCompleted;
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -25,6 +32,7 @@ namespace BlueArchiveGUIDownloader
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             if (UseChromeBrowserDownload.Checked)
             {
                 DirectDownload.Checked = false;
@@ -37,12 +45,26 @@ namespace BlueArchiveGUIDownloader
             {
                 UseChromeBrowserDownload.Checked = false;
             }
+=======
+
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
+<<<<<<< HEAD
 
         private void VersionText_TypeValidationCompleted(object sender, TypeValidationEventArgs e)
         {
@@ -55,5 +77,7 @@ namespace BlueArchiveGUIDownloader
                 : Color.Red;
         }
         
+=======
+>>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
     }
 }

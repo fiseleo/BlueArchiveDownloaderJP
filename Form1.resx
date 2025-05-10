@@ -141,11 +141,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DelData.ZOrder" xml:space="preserve">
-<<<<<<< HEAD
     <value>5</value>
-=======
-    <value>4</value>
->>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
   </data>
   <data name="DownloadData.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 24</value>
@@ -169,11 +165,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DownloadData.ZOrder" xml:space="preserve">
-<<<<<<< HEAD
     <value>4</value>
-=======
-    <value>3</value>
->>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
   </data>
   <data name="UseChromeBrowserDownload.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -204,11 +196,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;UseChromeBrowserDownload.ZOrder" xml:space="preserve">
-<<<<<<< HEAD
     <value>3</value>
-=======
-    <value>2</value>
->>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
   </data>
   <data name="DirectDownload.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -235,11 +223,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DirectDownload.ZOrder" xml:space="preserve">
-<<<<<<< HEAD
     <value>2</value>
-=======
-    <value>1</value>
->>>>>>> 2397e618f8e1d2a12522097587a985ca71f41552
   </data>
   <data name="logbox.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft JhengHei UI, 8.25pt, style=Bold</value>

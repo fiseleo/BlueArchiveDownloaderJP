@@ -117,11 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConfirmDelMessage" xml:space="preserve">
+    <value>Confirm to delete the downloaded data , it cannot be restored.</value>
+  </data>
+  <data name="ConfirmDelTitle" xml:space="preserve">
+    <value>Please Confirm</value>
+  </data>
   <data name="ConfirmDownloadMessage" xml:space="preserve">
     <value>Are you sure you want to start downloading?</value>
   </data>
   <data name="ConfirmDownloadTitle" xml:space="preserve">
     <value> Please Confirm</value>
+  </data>
+  <data name="DelCompleteMessage" xml:space="preserve">
+    <value>Delete download data complete!</value>
+  </data>
+  <data name="DelCompleteTitle" xml:space="preserve">
+    <value>Delete Complete!</value>
+  </data>
+  <data name="DelErrorMessage" xml:space="preserve">
+    <value>Error, no Downloads folder</value>
+  </data>
+  <data name="DelErrorTitle" xml:space="preserve">
+    <value>Error</value>
   </data>
   <data name="DownloadCompleteMessage" xml:space="preserve">
     <value>Download complete!</value>
@@ -131,6 +149,9 @@
   </data>
   <data name="DownloadErrorTitle" xml:space="preserve">
     <value>Error</value>
+  </data>
+  <data name="DownloadProgressForm" xml:space="preserve">
+    <value>DownloadProgress</value>
   </data>
   <data name="ErrorChooseDownloadMethod" xml:space="preserve">
     <value>Please select the download mode first: Direct / Chrome.</value>

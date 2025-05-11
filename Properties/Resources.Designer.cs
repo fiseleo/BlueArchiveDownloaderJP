@@ -61,6 +61,24 @@ namespace BlueArchiveGUIDownloader.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 Confirm to delete the downloaded data , it cannot be restored. 的當地語系化字串。
+        /// </summary>
+        internal static string ConfirmDelMessage {
+            get {
+                return ResourceManager.GetString("ConfirmDelMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Please Confirm 的當地語系化字串。
+        /// </summary>
+        internal static string ConfirmDelTitle {
+            get {
+                return ResourceManager.GetString("ConfirmDelTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Are you sure you want to start downloading? 的當地語系化字串。
         /// </summary>
         internal static string ConfirmDownloadMessage {
@@ -75,6 +93,42 @@ namespace BlueArchiveGUIDownloader.Properties {
         internal static string ConfirmDownloadTitle {
             get {
                 return ResourceManager.GetString("ConfirmDownloadTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Delete download data complete! 的當地語系化字串。
+        /// </summary>
+        internal static string DelCompleteMessage {
+            get {
+                return ResourceManager.GetString("DelCompleteMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Delete Complete! 的當地語系化字串。
+        /// </summary>
+        internal static string DelCompleteTitle {
+            get {
+                return ResourceManager.GetString("DelCompleteTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Error, no Downloads folder 的當地語系化字串。
+        /// </summary>
+        internal static string DelErrorMessage {
+            get {
+                return ResourceManager.GetString("DelErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Error 的當地語系化字串。
+        /// </summary>
+        internal static string DelErrorTitle {
+            get {
+                return ResourceManager.GetString("DelErrorTitle", resourceCulture);
             }
         }
         
@@ -102,6 +156,15 @@ namespace BlueArchiveGUIDownloader.Properties {
         internal static string DownloadErrorTitle {
             get {
                 return ResourceManager.GetString("DownloadErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 DownloadProgress 的當地語系化字串。
+        /// </summary>
+        internal static string DownloadProgressForm {
+            get {
+                return ResourceManager.GetString("DownloadProgressForm", resourceCulture);
             }
         }
         

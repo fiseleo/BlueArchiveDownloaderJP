@@ -117,43 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ConfirmDelMessage" xml:space="preserve">
-    <value>確定刪除下載資料，不可恢復。</value>
-  </data>
-  <data name="ConfirmDelTitle" xml:space="preserve">
-    <value>請確認</value>
-  </data>
-  <data name="ConfirmDownloadMessage" xml:space="preserve">
-    <value>確定要開始下載嗎？</value>
-  </data>
-  <data name="ConfirmDownloadTitle" xml:space="preserve">
-    <value>請確認</value>
-  </data>
-  <data name="DelCompleteMessage" xml:space="preserve">
-    <value>刪除資料完成!</value>
-  </data>
-  <data name="DelCompleteTitle" xml:space="preserve">
-    <value>刪除完成!</value>
-  </data>
-  <data name="DelErrorMessage" xml:space="preserve">
-    <value>錯誤，沒有Downloads資料夾</value>
-  </data>
-  <data name="DelErrorTitle" xml:space="preserve">
-    <value>錯誤</value>
-  </data>
-  <data name="DownloadCompleteMessage" xml:space="preserve">
-    <value>下載完成!</value>
-  </data>
-  <data name="DownloadCompleteTitle" xml:space="preserve">
-    <value>完成</value>
-  </data>
-  <data name="DownloadErrorTitle" xml:space="preserve">
-    <value>錯誤</value>
-  </data>
-  <data name="DownloadProgressForm" xml:space="preserve">
-    <value>下載進度</value>
-  </data>
-  <data name="ErrorChooseDownloadMethod" xml:space="preserve">
-    <value>請先選擇下載模式：Direct / Chrome</value>
-  </data>
 </root>

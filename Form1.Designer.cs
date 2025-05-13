@@ -37,6 +37,7 @@
             VersionText = new MaskedTextBox();
             VersionKnow = new Label();
             ProgressBar = new ProgressBar();
+            Audio = new Button();
             SuspendLayout();
             // 
             // DelData
@@ -95,11 +96,19 @@
             ProgressBar.Name = "ProgressBar";
             ProgressBar.Click += ProgressBar_Click;
             // 
+            // Audio
+            // 
+            resources.ApplyResources(Audio, "Audio");
+            Audio.Name = "Audio";
+            Audio.UseVisualStyleBackColor = true;
+            Audio.Click += Audio_Click;
+            // 
             // MainForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = SystemColors.Window;
+            Controls.Add(Audio);
             Controls.Add(ProgressBar);
             Controls.Add(VersionKnow);
             Controls.Add(VersionText);
@@ -124,5 +133,6 @@
         private MaskedTextBox VersionText;
         private Label VersionKnow;
         private ProgressBar ProgressBar;
+        private Button Audio;
     }
 }

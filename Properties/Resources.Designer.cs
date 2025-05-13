@@ -61,6 +61,42 @@ namespace BlueArchiveGUIDownloader.Properties {
         }
         
         /// <summary>
+        ///   查詢類似 There is no Downloads\MediaResources\GameData\Audio\VOC_JP folder 的當地語系化字串。
+        /// </summary>
+        internal static string AudioErrorMessage {
+            get {
+                return ResourceManager.GetString("AudioErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Error 的當地語系化字串。
+        /// </summary>
+        internal static string AudioErrorTitle {
+            get {
+                return ResourceManager.GetString("AudioErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 All audio files have been unzipped! 的當地語系化字串。
+        /// </summary>
+        internal static string AudioExtractCompleteMessage {
+            get {
+                return ResourceManager.GetString("AudioExtractCompleteMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類似 Complete! 的當地語系化字串。
+        /// </summary>
+        internal static string AudioExtractCompleteTitle {
+            get {
+                return ResourceManager.GetString("AudioExtractCompleteTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查詢類似 Confirm to delete the downloaded data , it cannot be restored. 的當地語系化字串。
         /// </summary>
         internal static string ConfirmDelMessage {

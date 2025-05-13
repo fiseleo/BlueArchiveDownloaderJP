@@ -132,4 +132,11 @@
   <data name="VersionKnow.Text" xml:space="preserve">
     <value>輸入蔚藍檔案的版本號(日服)</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Audio.TabIndex" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="Audio.Text" xml:space="preserve">
+    <value>解壓縮Audio之壓縮檔</value>
+  </data>
 </root>

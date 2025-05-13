@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AudioErrorMessage" xml:space="preserve">
+    <value>沒有 Downloads\MediaResources\GameData\Audio\VOC_JP 資料夾</value>
+  </data>
+  <data name="AudioErrorTitle" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="AudioExtractCompleteMessage" xml:space="preserve">
+    <value>所有音檔已解壓完成！</value>
+  </data>
+  <data name="AudioExtractCompleteTitle" xml:space="preserve">
+    <value />
+  </data>
   <data name="ConfirmDelMessage" xml:space="preserve">
     <value>確定刪除下載資料，不可恢復。</value>
   </data>

@@ -12,6 +12,9 @@ If you want to download without using a Chrome browser, add -d, for example: `BA
 
 If you want to re-download Xapk use  `-r` , it will delete xapk and redownload, mostly use when Yostar pushed new APK Update
 
+If you want to decompress the audio file, please download it first and then add -a to decompress it.
+
 Thanks starik222 leo0215
 
 [Releases](<https://github.com/fiseleo/BlueArchiveDownloaderJP/tree/main> "Title")
+![alt text](image.png)

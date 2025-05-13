@@ -18,6 +18,7 @@ namespace BAdownload
             Console.OutputEncoding = Encoding.UTF8;
             Console.InputEncoding  = Encoding.UTF8;
             bool reDownload = false;
+            bool UnAudioFlag = false;
             string rootDirectory = Directory.GetCurrentDirectory();
             if (!Directory.Exists(Path.Combine(rootDirectory, "Downloads", "XAPK")))
             {
@@ -57,6 +58,16 @@ namespace BAdownload
                 {
                     reDownload = true;
                 }
+                else if (args[i].Equals("-a", StringComparison.OrdinalIgnoreCase))
+                {
+                    UnAudioFlag = true;
+                }
+            }
+            if (UnAudioFlag)
+            {
+                Console.WriteLine("UnAudio flag detected; extracting audio files.");
+                await UnAudio.Audio();
+                return;
             }
             if (directDownload && !reDownload)
             {

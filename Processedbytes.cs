@@ -37,14 +37,26 @@ class Processedbytes
     }
 }
 
+
+[MemoryPackable]
+public partial class TablePatchPack
+{
+    // Properties
+    public string Name { get; set; }
+    public long Size { get; set; }
+    public long Crc { get; set; }
+    public bool IsPrologue { get; set; }
+    public TableBundle[] BundleFiles { get; set; }
+}
+
 [MemoryPackable]
 public partial class TableBundle
 {
     public required string Name { get; set; }
     public long Size { get; set; }
     public long Crc { get; set; }
-    public bool IsInBuild { get; set; }
-    public bool IsChanged { get; set; }
+    public bool isInbuild { get; set; }
+    public bool isChanged { get; set; }
     public bool IsPrologue { get; set; }
     public bool IsSplitDownload { get; set; }
     public List<string>? Includes { get; set; }
@@ -54,6 +66,7 @@ public partial class TableBundle
 public partial class TableCatalog
 {
     public required Dictionary<string, TableBundle> Table { get; set; }
+    public required Dictionary<string, TablePatchPack> TablePack { get; set; }
 }
 
 namespace Media.Service

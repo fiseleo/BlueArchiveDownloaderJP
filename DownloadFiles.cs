@@ -30,7 +30,7 @@ namespace DownloadGameData
 
             // 2) 讀取三個 JSON 拿到檔案清單
             string jsonFolderPath = Path.Combine(downloadDirectory, "json");
-            string bundleDownloadInfoPath = Path.Combine(jsonFolderPath, "bundleDownloadInfo.json");
+            string bundleDownloadInfoPath = Path.Combine(jsonFolderPath, "BundlePackingInfo.json");
             string mediaCatalogPath = Path.Combine(jsonFolderPath, "MediaCatalog.json");
             string tableCatalogPath = Path.Combine(jsonFolderPath, "TableCatalog.json");
 
@@ -106,7 +106,7 @@ namespace DownloadGameData
                 await semaphore.WaitAsync();
                 try
                 {
-                    string fileUrl = $"{baseUrl}/Android/{file.Name}";
+                    string fileUrl = $"{baseUrl}/Android_PatchPack/{file.Name}";
                     string localDir = Path.Combine(downloadDirectory, "BundleFile");
                     Directory.CreateDirectory(localDir);
                     string localPath = Path.Combine(localDir, file.Name);
@@ -294,7 +294,7 @@ namespace DownloadGameData
         }
 
         // -----------------------------------------------------
-        // 解析 JSON 取得 BundleFiles
+        // 解析 JSON 取得 BundleFiles（修正為 FullPatchPacks）
         // -----------------------------------------------------
         private static List<(string Name, long Crc)> GetBundleFiles(string jsonFilePath)
         {
@@ -303,11 +303,12 @@ namespace DownloadGameData
 
             string json = File.ReadAllText(jsonFilePath);
             dynamic root = JsonConvert.DeserializeObject(json);
-            if (root?.BundleFiles == null) return data;
+            if (root?.FullPatchPacks == null) return data;
 
-            foreach (var bf in root.BundleFiles)
+            foreach (var bf in root.FullPatchPacks)
             {
-                string name = bf.Name;
+                if (bf == null || bf.PackName == null || bf.Crc == null) continue;
+                string name = bf.PackName;
                 long crc = bf.Crc;
                 data.Add((name, crc));
             }
@@ -315,7 +316,7 @@ namespace DownloadGameData
         }
 
         // -----------------------------------------------------
-        // 解析 JSON 取得 MediaResources
+        // 解析 JSON 取得 MediaResources（只回傳 key 路徑）
         // -----------------------------------------------------
         private static List<(string FileName, long Crc, string Path)> GetMediaResources(string jsonFilePath)
         {
@@ -337,7 +338,7 @@ namespace DownloadGameData
         }
 
         // -----------------------------------------------------
-        // 解析 JSON 取得 TableBundles
+        // 解析 JSON 取得 TableBundles（合併 Table 與 TablePack）
         // -----------------------------------------------------
         private static List<(string Name, long Crc)> GetTableEntries(string jsonFilePath)
         {
@@ -346,13 +347,27 @@ namespace DownloadGameData
 
             string json = File.ReadAllText(jsonFilePath);
             dynamic root = JsonConvert.DeserializeObject(json);
-            if (root?.Table == null) return data;
-
-            foreach (var entry in root.Table)
+            // Table
+            if (root?.Table != null)
             {
-                string name = entry.Value.Name;
-                long crc = entry.Value.Crc;
-                data.Add((name, crc));
+                foreach (var entry in root.Table)
+                {
+                    if (entry.Value.Name == null || entry.Value.Crc == null) continue;
+                    string name = entry.Value.Name;
+                    long crc = entry.Value.Crc;
+                    data.Add((name, crc));
+                }
+            }
+            // TablePack
+            if (root?.TablePack != null)
+            {
+                foreach (var entry in root.TablePack)
+                {
+                    if (entry.Value.Name == null || entry.Value.Crc == null) continue;
+                    string name = entry.Value.Name;
+                    long crc = entry.Value.Crc;
+                    data.Add((name, crc));
+                }
             }
             return data;
         }

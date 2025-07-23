@@ -144,7 +144,7 @@ namespace BAdownload
                 Console.WriteLine("Downloading response.pb ...");
                 var pbBytes = await http.GetByteArrayAsync(pbUrl);
                 // 假設 response.pb 已成功下載並寫入檔案
-                //await File.WriteAllBytesAsync("response.pb", pbBytes);  // 原始碼已有
+                await File.WriteAllBytesAsync("response.pb", pbBytes);  // 原始碼已有
                 Console.WriteLine("Saved response.pb");
 
                 var protocPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "protoc.exe");
@@ -163,7 +163,7 @@ namespace BAdownload
                 proc.StandardInput.Close();
                 string textProto = await proc.StandardOutput.ReadToEndAsync();
                 await proc.WaitForExitAsync();
-                // await File.WriteAllTextAsync("response.txt", textProto); // 您的原始碼已有
+                await File.WriteAllTextAsync("response.txt", textProto); // 您的原始碼已有
 
                 // 2. 解析到 JObject (ParseMessage 函數您已提供)
                 var lines = textProto.Split('\n');
@@ -181,68 +181,26 @@ namespace BAdownload
                     return;
                 }
 
+                // 解析所有版本資訊，僅以 5 欄位（versionCode）為主
                 var entries = array
                     .Select(item =>
                     {
                         var itemObj = item as JObject;
                         if (itemObj == null) return null;
-
                         var threeToken = itemObj["3"] as JObject;
                         if (threeToken == null) return null;
-                        
                         var info = threeToken["2"] as JObject;
                         if (info == null) return null;
-
-                        var versionToken = info["6"];
-                        // 修正路徑以正確獲取 XAPK URL
-                        var urlToken = info?["24"]?["9"]; 
-
-                        if (versionToken == null || urlToken == null)
-                        {
-                            // Console.WriteLine("Warning: versionToken or urlToken is null. Skipping entry.");
-                            return null;
-                        }
-                         if (urlToken.Type != JTokenType.String)
-                        {
-                            // Console.WriteLine($"Warning: urlToken is not a string: {urlToken.ToString()}. Skipping entry.");
-                            return null;
-                        }
-
-                        string versionStr = null;
-                        if (versionToken.Type == JTokenType.String)
-                        {
-                            versionStr = versionToken.Value<string>();
-                        }
-                        else
-                        {
-                            // 如果版本號不是直接的字串 (例如您 response.json 中看到的 {"6": ["0", "54"]} 結構)
-                            // 則此處的簡易提取會失敗。您可以選擇跳過這些條目或實現更複雜的解析邏輯。
-                            // 根據您的需求 (例如 "1.23.456789")，我們優先處理標準字串格式的版本。
-                            // Console.WriteLine($"Warning: Version for an entry is not a direct string: {versionToken.ToString()}. Skipping entry.");
-                            return null; 
-                        }
-
-                        if (string.IsNullOrEmpty(versionStr))
-                        {
-                            // Console.WriteLine("Warning: Extracted version string is null or empty. Skipping entry.");
-                            return null;
-                        }
-                        
-                        // 驗證版本號格式是否為 X.Y.Z... 且各部分為數字
-                        var versionPartsTemp = versionStr.Split('.');
-                        if (versionPartsTemp.Length < 2) { // 至少需要 主版本.次版本
-                             // Console.WriteLine($"Warning: Version string '{versionStr}' does not have at least Major.Minor parts. Skipping.");
-                             return null;
-                        }
-                        foreach(var part in versionPartsTemp) {
-                            if (!int.TryParse(part, out _)) {
-                                // Console.WriteLine($"Warning: Version part '{part}' in '{versionStr}' is not an integer. Skipping.");
-                                return null;
-                            }
-                        }
-                        
+                        var versionCodeToken = info["5"];
+                        var urlToken = info?["24"]?["9"];
+                        if (versionCodeToken == null || urlToken == null) return null;
+                        if (urlToken.Type != JTokenType.String) return null;
+                        string versionCode = versionCodeToken.Value<string>();
+                        // 直接用 versionCode 組合版本號：1.XX.versionCode
+                        string minor = versionCode.Length >= 6 ? versionCode.Substring(1, 2) : "00";
+                        string versionStr = $"1.{minor}.{versionCode}";
                         string url = urlToken.Value<string>();
-                        return new { Version = versionStr, Url = url };
+                        return new { Version = versionStr, VersionCode = versionCode, Url = url };
                     })
                     .Where(x => x != null && !string.IsNullOrEmpty(x.Url) && x.Url.StartsWith("https://download.pureapk.com/b/XAPK/"))
                     .ToList();
@@ -256,13 +214,13 @@ namespace BAdownload
                 string selectedUrl = null;
                 string selectedVersion = null;
 
-                if (!string.IsNullOrEmpty(versionArg)) // versionArg 是從 -f 參數獲取的
+                if (!string.IsNullOrEmpty(versionArg)) // -f 1.XX.XXXXXX 只比對 XXXXXX
                 {
-                    // 使用者指定版本
-                    var match = entries.FirstOrDefault(x => x.Version.Equals(versionArg, StringComparison.OrdinalIgnoreCase));
+                    var versionCode = versionArg.Split('.').Last();
+                    var match = entries.FirstOrDefault(x => x.VersionCode == versionCode);
                     if (match == null)
                     {
-                        Console.Error.WriteLine($"The specified version {versionArg} was not found in the list or its URL is not in a valid XAPK format.");
+                        Console.Error.WriteLine($"The specified versionCode {versionCode} was not found in the list or its URL is not in a valid XAPK format.");
                         return;
                     }
                     selectedUrl = match.Url;
@@ -271,24 +229,8 @@ namespace BAdownload
                 }
                 else
                 {
-                    // 自動選擇最新版本 (比較 主.次.修訂)
-                    var latestEntry = entries
-                        .Select(e => {
-                            var parts = e.Version.Split('.');
-                            // 此處我們已在上面確保 parts[0] 和 parts[1] 可以解析為 int
-                            return new {
-                                e.Url,
-                                e.Version,
-                                Major = int.Parse(parts[0]),
-                                Minor = int.Parse(parts[1]),
-                                Patch = parts.Length > 2 && int.TryParse(parts[2], out int pVal) ? pVal : 0 // 第三部分（修訂號）
-                            };
-                        })
-                        .OrderByDescending(v => v.Major)
-                        .ThenByDescending(v => v.Minor)
-                        .ThenByDescending(v => v.Patch)
-                        .FirstOrDefault();
-
+                    // 只比對 versionCode 最大的
+                    var latestEntry = entries.OrderByDescending(e => long.Parse(e.VersionCode)).FirstOrDefault();
                     if (latestEntry == null)
                     {
                         Console.Error.WriteLine("Unable to determine the latest version from the available list.");

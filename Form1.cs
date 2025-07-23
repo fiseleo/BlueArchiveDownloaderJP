@@ -195,21 +195,23 @@ namespace BlueArchiveGUIDownloader
 
         private async Task DoDirectDownload(IProgress<double> progress)
         {
-
+            // 從輸入框獲取版本參數並去除前後空白
             var versionArg = VersionText.Text.Trim();
+            // 驗證版本格式是否為 X.XX.XXXXXX
             bool validFmt = Regex.IsMatch(versionArg, @"^\d\.\d{2}\.\d{6}$");
-            // 這裡是直接下載的邏輯
-            // 使用 HttpClient 或 WebClient 來下載檔案
+
+            // PureAPK 的 API URL
             const string pbUrl = "https://api.pureapk.com/m/v3/cms/app_version?hl=en-US&package_name=com.YostarJP.BlueArchive";
             using var http = new HttpClient();
             http.Timeout = Timeout.InfiniteTimeSpan;
-            http.Timeout = Timeout.InfiniteTimeSpan;
+            // 設定請求標頭
             http.DefaultRequestHeaders.Add("x-sv", "29");
             http.DefaultRequestHeaders.Add("x-abis", "arm64-v8a,armeabi-v7a,armeabi");
             http.DefaultRequestHeaders.Add("x-gp", "1");
-            Console.WriteLine("Downloading response.pb ...");
+            Console.WriteLine("正在下載版本資訊 (response.pb)...");
             var pbBytes = await http.GetByteArrayAsync(pbUrl);
 
+            // 使用 protoc.exe 解碼協定緩衝區
             var protocPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "protoc.exe");
             var psi = new ProcessStartInfo
             {
@@ -220,22 +222,28 @@ namespace BlueArchiveGUIDownloader
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            Console.WriteLine("Decoding with protoc --decode_raw ...");
+            Console.WriteLine("正在使用 protoc --decode_raw 進行解碼...");
             using var proc = Process.Start(psi);
             await proc.StandardInput.BaseStream.WriteAsync(pbBytes, 0, pbBytes.Length);
             proc.StandardInput.Close();
             string textProto = await proc.StandardOutput.ReadToEndAsync();
             await proc.WaitForExitAsync();
+
+            // 解析解碼後的文字
             var lines = textProto.Split('\n');
             int idx = 0;
             JObject root = ParseMessage(lines, ref idx, 0);
-            Console.WriteLine("Generated response.json");
+            Console.WriteLine("已生成 response.json 的內部表示");
+
+            // 從解析後的 JSON 中選取版本列表
             var array = root.SelectToken("$['1']['7']['2']") as JArray;
             if (array == null)
             {
-                Console.Error.WriteLine("Failed to parse version_list from response.json (path $['1']['7']['2'] is invalid or does not exist).");
+                Console.Error.WriteLine("從回應中解析 version_list 失敗 (路徑 $['1']['7']['2'] 無效或不存在)。");
                 return;
             }
+
+            // 將版本資訊提取並結構化
             var entries = array
                     .Select(item =>
                     {
@@ -248,127 +256,84 @@ namespace BlueArchiveGUIDownloader
                         var info = threeToken["2"] as JObject;
                         if (info == null) return null;
 
-                        var versionToken = info["6"];
+                        // 根據使用者要求，改用欄位 5 作為 versionCode
+                        var versionCodeToken = info["5"];
+                        // 欄位 6 作為 versionName (用於顯示)
+                        var versionNameToken = info["6"];
                         // 修正路徑以正確獲取 XAPK URL
                         var urlToken = info?["24"]?["9"];
 
-                        if (versionToken == null || urlToken == null)
+                        if (versionCodeToken == null || urlToken == null || urlToken.Type != JTokenType.String)
                         {
-                            // Console.WriteLine("Warning: versionToken or urlToken is null. Skipping entry.");
-                            return null;
-                        }
-                        if (urlToken.Type != JTokenType.String)
-                        {
-                            // Console.WriteLine($"Warning: urlToken is not a string: {urlToken.ToString()}. Skipping entry.");
                             return null;
                         }
 
-                        string versionStr = null;
-                        if (versionToken.Type == JTokenType.String)
+                        string versionCodeStr = versionCodeToken.Value<string>();
+                        string versionNameStr = "N/A"; // 預設值
+                        if (versionNameToken != null && versionNameToken.Type == JTokenType.String)
                         {
-                            versionStr = versionToken.Value<string>();
-                        }
-                        else
-                        {
-                            // 如果版本號不是直接的字串 (例如您 response.json 中看到的 {"6": ["0", "54"]} 結構)
-                            // 則此處的簡易提取會失敗。您可以選擇跳過這些條目或實現更複雜的解析邏輯。
-                            // 根據您的需求 (例如 "1.23.456789")，我們優先處理標準字串格式的版本。
-                            // Console.WriteLine($"Warning: Version for an entry is not a direct string: {versionToken.ToString()}. Skipping entry.");
-                            return null;
-                        }
-
-                        if (string.IsNullOrEmpty(versionStr))
-                        {
-                            // Console.WriteLine("Warning: Extracted version string is null or empty. Skipping entry.");
-                            return null;
-                        }
-
-                        // 驗證版本號格式是否為 X.Y.Z... 且各部分為數字
-                        var versionPartsTemp = versionStr.Split('.');
-                        if (versionPartsTemp.Length < 2)
-                        { // 至少需要 主版本.次版本
-                          // Console.WriteLine($"Warning: Version string '{versionStr}' does not have at least Major.Minor parts. Skipping.");
-                            return null;
-                        }
-                        foreach (var part in versionPartsTemp)
-                        {
-                            if (!int.TryParse(part, out _))
-                            {
-                                // Console.WriteLine($"Warning: Version part '{part}' in '{versionStr}' is not an integer. Skipping.");
-                                return null;
-                            }
+                            versionNameStr = versionNameToken.Value<string>();
                         }
 
                         string url = urlToken.Value<string>();
-                        return new { Version = versionStr, Url = url };
+
+                        // 過濾掉非 XAPK 的連結
+                        if (string.IsNullOrEmpty(versionCodeStr) || !url.StartsWith("https://download.pureapk.com/b/XAPK/"))
+                        {
+                            return null;
+                        }
+
+                        // 驗證 versionCode 必須是數字
+                        if (!long.TryParse(versionCodeStr, out _))
+                        {
+                            return null;
+                        }
+
+                        return new { VersionCode = versionCodeStr, VersionName = versionNameStr, Url = url };
                     })
-                    .Where(x => x != null && !string.IsNullOrEmpty(x.Url) && x.Url.StartsWith("https://download.pureapk.com/b/XAPK/"))
+                    .Where(x => x != null)
                     .ToList();
 
             if (!entries.Any())
             {
-                Console.Error.WriteLine("No valid XAPK download links or version information found in response.json.");
+                Console.Error.WriteLine("在回應中未找到有效的 XAPK 下載連結或版本資訊。");
                 return;
             }
 
             string selectedUrl = null;
-            string selectedVersion = null;
+            string selectedVersion = null; // 用於顯示的版本名稱
 
             if (validFmt)
             {
-                // 如果有指定版本號，則選擇符合的版本
-                var match = entries.FirstOrDefault(x =>
-                    x.Version.Equals(versionArg, StringComparison.OrdinalIgnoreCase));
+                // 如果使用者輸入了特定版本，根據 versionCode (XXXXXX) 進行匹配
+                // 例如 "1.53.323417" 只取 "323417"
+                var targetVersionCode = versionArg.Substring(5);
+                var match = entries.FirstOrDefault(x => x.VersionCode.Equals(targetVersionCode, StringComparison.OrdinalIgnoreCase));
+
                 if (match != null)
                 {
                     selectedUrl = match.Url;
-                    selectedVersion = match.Version;
-                    Console.WriteLine($"Matching version found. Using version: {selectedVersion}");
-
+                    selectedVersion = match.VersionName; // 使用完整的版本名稱進行顯示
+                    Console.WriteLine($"已找到匹配的版本。將下載版本: {selectedVersion} (VersionCode: {match.VersionCode})");
                 }
                 else
                 {
-                    Console.WriteLine("No matching version found in response.json.");
-                    var latest = entries
-                        .Select(e =>
-                        {
-                            var p = e.Version.Split('.');
-                            return (e.Version, e.Url,
-                            major: int.Parse(p[0]),
-                            minor: int.Parse(p[1]),
-                            patch: p.Length > 2 && int.TryParse(p[2], out var t) ? t : 0);
-                        })
-                        .OrderByDescending(x => x.major)
-                        .ThenByDescending(x => x.minor)
-                        .ThenByDescending(x => x.patch)
-                        .First();
-                    selectedVersion = latest.Version;
-                    selectedUrl = latest.Url;
-                    Console.WriteLine($"No matching version found. Using latest version: {selectedVersion}");
+                    Console.WriteLine($"未找到指定的版本 (VersionCode: {targetVersionCode})。將改為下載最新版本。");
                 }
             }
-            else
+
+            // 如果沒有指定版本，或指定版本未找到，則選擇最新版本
+            if (selectedUrl == null)
             {
-                Console.WriteLine("No version specified. Selecting the latest version.");
+                Console.WriteLine("正在確定最新版本...");
                 var latest = entries
-                    .Select(e =>
-                    {
-                        var p = e.Version.Split('.');
-                        return (e.Version, e.Url,
-                        major: int.Parse(p[0]),
-                        minor: int.Parse(p[1]),
-                        patch: p.Length > 2 && int.TryParse(p[2], out var t) ? t : 0);
-                    })
-                    .OrderByDescending(x => x.major)
-                    .ThenByDescending(x => x.minor)
-                    .ThenByDescending(x => x.patch)
+                    .OrderByDescending(e => long.Parse(e.VersionCode))
                     .First();
-                selectedVersion = latest.Version;
+
                 selectedUrl = latest.Url;
-                Console.WriteLine($"Latest version: {selectedVersion}");
+                selectedVersion = latest.VersionName;
+                Console.WriteLine($"將下載最新版本: {selectedVersion} (VersionCode: {latest.VersionCode})");
             }
-
-
 
             JObject ParseMessage(string[] lines, ref int idx, int indent)
             {
@@ -415,11 +380,10 @@ namespace BlueArchiveGUIDownloader
             }
 
             // 下載檔案
-
             if (selectedUrl != null)
             {
-                Console.WriteLine($"Selected URL: {selectedUrl}");
-                Console.WriteLine("Downloading XAPK ...");
+                Console.WriteLine($"選擇的 URL: {selectedUrl}");
+                Console.WriteLine("正在下載 XAPK...");
                 using var response = await new HttpClient { Timeout = Timeout.InfiniteTimeSpan }
                                             .GetAsync(selectedUrl, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();
@@ -445,18 +409,16 @@ namespace BlueArchiveGUIDownloader
                     }
                 }
 
-                Console.WriteLine("Download XAPK complete.");
-
+                Console.WriteLine("XAPK 下載完成。");
             }
             else
             {
-                Console.Error.WriteLine("Failed to select a valid download URL.");
+                Console.Error.WriteLine("無法選擇有效的下載 URL。");
             }
             await UnXAPK.UnXAPKMain();
             return;
-
-
         }
+
 
         private async Task DoChromeDownload()
         {
@@ -464,7 +426,7 @@ namespace BlueArchiveGUIDownloader
             var versionArg = VersionText.Text.Trim();
             bool validFmt = Regex.IsMatch(versionArg, @"^\d\.\d{2}\.\d{6}$");
             string downloadUrl;
-            if (!string.IsNullOrEmpty(versionArg) && versionArg.StartsWith("1."))
+            if (!string.IsNullOrEmpty(versionArg) && validFmt)
             {
                 // 取小數點後的部分。例如 "1.53.323417" 只取 "323417"
                 var versionCode = versionArg.Substring(5); // 從 index=5 開始擷取
@@ -472,10 +434,10 @@ namespace BlueArchiveGUIDownloader
             }
             else
             {
-                // 沒有指定 -f 參數，或格式不符合，改用 latest
+                // 沒有指定版本，或格式不符合，改用 latest
                 downloadUrl = "https://d.apkpure.com/b/XAPK/com.YostarJP.BlueArchive?version=latest";
             }
-            Console.WriteLine($"Preparing download URL: {downloadUrl}");
+            Console.WriteLine($"準備下載 URL: {downloadUrl}");
             var browserFetcher = new BrowserFetcher();
             await browserFetcher.DownloadAsync();
             var launchOptions = new LaunchOptions
@@ -496,27 +458,27 @@ namespace BlueArchiveGUIDownloader
             await client.SendAsync("Page.setDownloadBehavior", parameters);
             try
             {
-                Console.WriteLine("Attempting to load the page and awaiting Cloudflare verification...");
+                Console.WriteLine("嘗試載入頁面並等待 Cloudflare 驗證...");
                 await page.GoToAsync(downloadUrl, WaitUntilNavigation.Networkidle2);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while loading the page: {ex.Message}");
+                Console.WriteLine($"載入頁面時發生錯誤: {ex.Message}");
             }
             await Task.Delay(5000); // 等待 5 秒看是否需要額外 Cloudflare 檢查
-            Console.WriteLine("Waiting for file download to complete...");
+            Console.WriteLine("等待檔案下載完成...");
             string downloadPath = Path.Combine(rootDirectory, "Downloads", "XAPK");
             string downloadedFile = await WaitForDownloadedFileAsync(downloadPath, TimeSpan.FromSeconds(600));
             if (downloadedFile != null)
             {
-                Console.WriteLine($"Download complete: {downloadedFile}");
+                Console.WriteLine($"下載完成: {downloadedFile}");
             }
             else
             {
-                Console.WriteLine("Download timed out or no file detected.");
+                Console.WriteLine("下載逾時或未偵測到檔案。");
             }
 
-            Console.WriteLine("Download process complete; closing browser.");
+            Console.WriteLine("下載流程完成；正在關閉瀏覽器。");
             await browser.CloseAsync();
 
             await UnXAPK.UnXAPKMain();
@@ -566,7 +528,7 @@ namespace BlueArchiveGUIDownloader
         private async void Audio_Click(object sender, EventArgs e)
         {
             string rootDirectory = Directory.GetCurrentDirectory();
-            var AudioPath = Path.Combine(rootDirectory, "Downloads", "MediaResources","GameData" ,"Audio" ,"VOC_JP");
+            var AudioPath = Path.Combine(rootDirectory, "Downloads", "MediaResources", "GameData", "Audio", "VOC_JP");
 
 
             if (!Directory.Exists(AudioPath))
@@ -615,11 +577,11 @@ namespace BlueArchiveGUIDownloader
                 using var fs = File.OpenRead(zipFile);
                 using var zip = new ZipInputStream(fs)
                 {
-                    
+
                     Password = password  // 設定解密密碼
                 };
-                Console.WriteLine($"Extracting {zipFile} ...");
-                Console.WriteLine($"Password: {password}");
+                Console.WriteLine($"正在解壓縮 {zipFile} ...");
+                Console.WriteLine($"密碼: {password}");
                 var folderName = Path.GetFileNameWithoutExtension(zipFile);
                 string extractRoot = Path.Combine(path, folderName);
 

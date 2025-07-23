@@ -26,7 +26,7 @@ class Downloadsource
             var fileMappings = new Dictionary<string, string>
                 {
                     { "TableCatalog.bytes",      "TableBundles/TableCatalog.bytes" },
-                    { "bundleDownloadInfo.json", "Android/bundleDownloadInfo.json" },
+                    { "BundlePackingInfo.json", "Android_PatchPack/BundlePackingInfo.json" },
                     { "MediaCatalog.bytes",      "MediaResources/Catalog/MediaCatalog.bytes" }
                 };
 

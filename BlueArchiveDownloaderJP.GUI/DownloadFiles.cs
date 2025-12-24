@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
-using BlueArchiveGUIDownloader; // Assuming this is the namespace for DownloadProgressForm and Crc32
-using System.IO; // Added for Path operations
-using System.Threading.Tasks; // Added for Task
-using System.Collections.Generic; // Added for List
-using System.Linq; // Added for Select
-using System.Threading; // Added for SemaphoreSlim
-using System; // Added for Console, Action
+using BlueArchiveGUIDownloader;
+using System.IO;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System;
 
 namespace DownloadGameData
 {
@@ -17,15 +17,12 @@ namespace DownloadGameData
 
         public static async Task DownloadMain()
         {
-            // Increase the maximum number of connections per host (adjust as needed)
             ServicePointManager.DefaultConnectionLimit = 100;
 
-            // 1) Prepare directories, paths, and baseUrl
             string rootDirectory = Directory.GetCurrentDirectory();
             string downloadDirectory = Path.Combine(rootDirectory, "Downloads");
             Directory.CreateDirectory(downloadDirectory);
 
-            // Read AddressablesCatalogUrlRoot.txt to get baseUrl
             string addressablesCatalogUrlRootPath = Path.Combine(rootDirectory, "Downloads", "XAPK", "Processed", "AddressablesCatalogUrlRoot.txt");
             if (!File.Exists(addressablesCatalogUrlRootPath))
             {
@@ -34,67 +31,44 @@ namespace DownloadGameData
             }
             string baseUrl = File.ReadAllText(addressablesCatalogUrlRootPath).Trim();
 
-            // 2) Read three JSON files to get the file list
             string jsonFolderPath = Path.Combine(downloadDirectory, "json");
             string bundleDownloadInfoPath = Path.Combine(jsonFolderPath, "BundlePackingInfo.json");
             string mediaCatalogPath = Path.Combine(jsonFolderPath, "MediaCatalog.json");
             string tableCatalogPath = Path.Combine(jsonFolderPath, "TableCatalog.json");
 
-            var bundleFiles = GetBundleFiles(bundleDownloadInfoPath);       // (Name, Crc)
-            var mediaResources = GetMediaResources(mediaCatalogPath);         // (FileName, Crc, Path)
-            var tableBundles = GetTableEntries(tableCatalogPath);             // (Name, Crc)
+            var bundleFiles = GetBundleFiles(bundleDownloadInfoPath);
+            var mediaResources = GetMediaResources(mediaCatalogPath);
+            var tableBundles = GetTableEntries(tableCatalogPath);
 
             Console.WriteLine($"[INFO] BundleFiles: {bundleFiles.Count} items");
             Console.WriteLine($"[INFO] MediaResources: {mediaResources.Count} items");
             Console.WriteLine($"[INFO] TableBundles: {tableBundles.Count} items");
 
-            var progressForm = new DownloadProgressForm();
-            // Corrected mediaFiles to mediaResources
-            progressForm.InitMax(bundleFiles.Count, mediaResources.Count, tableBundles.Count);
-            progressForm.Show();
-
-            // 4) Download the three types of files concurrently
             var downloadTasks = new List<Task>
             {
-                DownloadBundleFilesAsync(bundleFiles, baseUrl, downloadDirectory, progressForm),
-                DownloadMediaResourcesAsync(mediaResources, baseUrl, downloadDirectory, progressForm),
-                DownloadTableBundlesAsync(tableBundles, baseUrl, downloadDirectory, progressForm)
+                DownloadBundleFilesAsync(bundleFiles, baseUrl, downloadDirectory),
+                DownloadMediaResourcesAsync(mediaResources, baseUrl, downloadDirectory),
+                DownloadTableBundlesAsync(tableBundles, baseUrl, downloadDirectory)
             };
 
             await Task.WhenAll(downloadTasks);
 
-            if (!progressForm.IsDisposed)
-            {
-                // Ensure UI operations are done on the UI thread
-                if (progressForm.InvokeRequired)
-                {
-                    progressForm.Invoke((Action)(() => progressForm.Close()));
-                }
-                else
-                {
-                    progressForm.Close();
-                }
-            }
             Console.WriteLine("[INFO] All downloads finished.");
         }
 
-        // -----------------------------------------------------
-        // (A) Download Bundle Files (using parallelism and semaphore to control simultaneous downloads)
-        // -----------------------------------------------------
         private static async Task DownloadBundleFilesAsync(
             List<(string Name, long Crc)> bundleFiles,
             string baseUrl,
-            string downloadDirectory,
-            DownloadProgressForm form
+            string downloadDirectory
         )
         {
-            int maxParallel = 10; // Adjust simultaneous downloads based on network environment
+            int maxParallel = 10;
             using var sem = new SemaphoreSlim(maxParallel);
             var tasks = new List<Task>();
             for (int i = 0; i < bundleFiles.Count; i++)
             {
                 await sem.WaitAsync();
-                int currentIndex = i; // Capture the current index for the closure
+                int currentIndex = i;
                 (string name, long crc) = bundleFiles[currentIndex];
 
                 tasks.Add(Task.Run(async () =>
@@ -103,11 +77,15 @@ namespace DownloadGameData
                     {
                         string fileUrl = $"{baseUrl}/Android_PatchPack/{name}";
                         string localPath = Path.Combine(downloadDirectory, "BundleFiles", name);
-                        Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? ""); // Ensure directory exists
+                        Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? "");
                         bool ok = await DownloadAndCheckCrcAsync(fileUrl, localPath, crc);
                         if (!ok)
                         {
                             Console.WriteLine($"[WARN] {name} download or CRC failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[INFO] Bundle: {name} ({currentIndex + 1}/{bundleFiles.Count})");
                         }
                     }
                     catch (Exception ex)
@@ -116,22 +94,17 @@ namespace DownloadGameData
                     }
                     finally
                     {
-                        form.ReportBundle(currentIndex + 1, $"Bundle: {name} ({currentIndex + 1}/{bundleFiles.Count})");
                         sem.Release();
                     }
                 }));
             }
-            await Task.WhenAll(tasks); // Wait for all spawned tasks in this category to complete
+            await Task.WhenAll(tasks);
         }
 
-        // -----------------------------------------------------
-        // (B) Download Media Resources
-        // -----------------------------------------------------
         private static async Task DownloadMediaResourcesAsync(
             List<(string FileName, long Crc, string Path)> mediaResources,
             string baseUrl,
-            string downloadDirectory,
-            DownloadProgressForm form
+            string downloadDirectory
         )
         {
             int maxParallel = 10;
@@ -140,7 +113,7 @@ namespace DownloadGameData
             for (int i = 0; i < mediaResources.Count; i++)
             {
                 await sem.WaitAsync();
-                int currentIndex = i; // Capture current index
+                int currentIndex = i;
                 (string fileName, long crc, string filePath) = mediaResources[currentIndex];
 
                 tasks.Add(Task.Run(async () =>
@@ -150,12 +123,16 @@ namespace DownloadGameData
                         string fileUrl = $"{baseUrl}/MediaResources/{filePath}";
                         string subDir = Path.GetDirectoryName(filePath) ?? "";
                         string localDir = Path.Combine(downloadDirectory, "MediaResources", subDir);
-                        Directory.CreateDirectory(localDir); // Ensure directory exists
+                        Directory.CreateDirectory(localDir);
                         string localPath = Path.Combine(localDir, fileName);
                         bool ok = await DownloadAndCheckCrcAsync(fileUrl, localPath, crc);
                         if (!ok)
                         {
                             Console.WriteLine($"[WARN] {fileName} download or CRC failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[INFO] Media: {fileName} ({currentIndex + 1}/{mediaResources.Count})");
                         }
                     }
                     catch (Exception ex)
@@ -164,22 +141,17 @@ namespace DownloadGameData
                     }
                     finally
                     {
-                        form.ReportMedia(currentIndex + 1, $"Media: {fileName} ({currentIndex + 1}/{mediaResources.Count})");
                         sem.Release();
                     }
                 }));
             }
-            await Task.WhenAll(tasks); // Wait for all spawned tasks
+            await Task.WhenAll(tasks);
         }
 
-        // -----------------------------------------------------
-        // (C) Download Table Bundles
-        // -----------------------------------------------------
         private static async Task DownloadTableBundlesAsync(
             List<(string Name, long Crc)> tableBundles,
             string baseUrl,
-            string downloadDirectory,
-            DownloadProgressForm form // Changed parameter type
+            string downloadDirectory
         )
         {
             int maxParallel = 10;
@@ -188,7 +160,7 @@ namespace DownloadGameData
             for (int i = 0; i < tableBundles.Count; i++)
             {
                 await sem.WaitAsync();
-                int currentIndex = i; // Capture current index
+                int currentIndex = i;
                 (string name, long crc) = tableBundles[currentIndex];
 
                 tasks.Add(Task.Run(async () =>
@@ -196,14 +168,18 @@ namespace DownloadGameData
                     try
                     {
                         string fileUrl = $"{baseUrl}/TableBundles/{name}";
-                        string localDir = Path.Combine(downloadDirectory, "TableBundles"); // Corrected to TableBundles
-                        Directory.CreateDirectory(localDir); // Ensure directory exists
+                        string localDir = Path.Combine(downloadDirectory, "TableBundles");
+                        Directory.CreateDirectory(localDir);
                         string localPath = Path.Combine(localDir, name);
 
                         bool ok = await DownloadAndCheckCrcAsync(fileUrl, localPath, crc);
                         if (!ok)
                         {
                             Console.WriteLine($"[WARN] {name} download or CRC failed.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[INFO] Table: {name} ({currentIndex + 1}/{tableBundles.Count})");
                         }
                     }
                     catch (Exception ex)
@@ -212,28 +188,21 @@ namespace DownloadGameData
                     }
                     finally
                     {
-                        // Use ReportTable from DownloadProgressForm
-                        form.ReportTable(currentIndex + 1, $"Table: {name} ({currentIndex + 1}/{tableBundles.Count})");
                         sem.Release();
                     }
                 }));
             }
-            await Task.WhenAll(tasks); // Wait for all spawned tasks
+            await Task.WhenAll(tasks);
         }
 
-  
-        // -----------------------------------------------------
-        // [核心函式] 下載檔案後檢查 CRC
-        // -----------------------------------------------------
         private static async Task<bool> DownloadAndCheckCrcAsync(string fileUrl, string localPath, long expectedCrc)
         {
-            // 如果檔案已存在則先檢查 CRC 是否正確
             if (File.Exists(localPath))
             {
                 long existingCrc = CalculateFileCrc(localPath);
                 if (existingCrc == expectedCrc)
                 {
-                    return true; // 正確則跳過下載
+                    return true;
                 }
                 else
                 {
@@ -261,9 +230,6 @@ namespace DownloadGameData
             return true;
         }
 
-        // -----------------------------------------------------
-        // 計算檔案 CRC32（使用自訂的 Crc32 類別）
-        // -----------------------------------------------------
         private static long CalculateFileCrc(string filePath)
         {
             using var fs = File.OpenRead(filePath);
@@ -277,9 +243,6 @@ namespace DownloadGameData
             return crc32.Value;
         }
 
-        // -----------------------------------------------------
-        // 解析 JSON 取得 BundleFiles（修正為 FullPatchPacks）
-        // -----------------------------------------------------
         private static List<(string Name, long Crc)> GetBundleFiles(string jsonFilePath)
         {
             var data = new List<(string, long)>();
@@ -299,9 +262,6 @@ namespace DownloadGameData
             return data;
         }
 
-        // -----------------------------------------------------
-        // 解析 JSON 取得 MediaResources
-        // -----------------------------------------------------
         private static List<(string FileName, long Crc, string Path)> GetMediaResources(string jsonFilePath)
         {
             var data = new List<(string, long, string)>();
@@ -321,9 +281,6 @@ namespace DownloadGameData
             return data;
         }
 
-        // -----------------------------------------------------
-        // 解析 JSON 取得 TableBundles（合併 Table 與 TablePack）
-        // -----------------------------------------------------
         private static List<(string Name, long Crc)> GetTableEntries(string jsonFilePath)
         {
             var data = new List<(string, long)>();
@@ -331,7 +288,7 @@ namespace DownloadGameData
 
             string json = File.ReadAllText(jsonFilePath);
             dynamic root = JsonConvert.DeserializeObject(json);
-            // Table
+            
             if (root?.Table != null)
             {
                 foreach (var entry in root.Table)
@@ -342,7 +299,7 @@ namespace DownloadGameData
                     data.Add((name, crc));
                 }
             }
-            // TablePack
+            
             if (root?.TablePack != null)
             {
                 foreach (var entry in root.TablePack)

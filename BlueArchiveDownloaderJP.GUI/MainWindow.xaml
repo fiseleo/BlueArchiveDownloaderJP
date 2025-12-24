@@ -1,0 +1,78 @@
+<Window
+    x:Class="BlueArchiveGUIDownloader.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Blue Archive GUI Downloader">
+
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Version Input Section -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <TextBlock x:Name="VersionKnow" 
+                       Text="Version (X.XX.XXXXXX):" 
+                       VerticalAlignment="Center"/>
+            <TextBox x:Name="VersionText" 
+                     Width="150"
+                     PlaceholderText="e.g., 1.53.323417"
+                     TextChanged="VersionText_TextChanged"/>
+        </StackPanel>
+
+        <!-- Download Method Section -->
+        <StackPanel Grid.Row="1" Spacing="10" Margin="0,0,0,10">
+            <CheckBox x:Name="DirectDownload" 
+                      Content="Direct Download"
+                      Checked="DirectDownload_Checked"
+                      Unchecked="DirectDownload_Unchecked"/>
+            <CheckBox x:Name="UseChromeBrowserDownload" 
+                      Content="Use Chrome Browser Download"
+                      Checked="UseChromeBrowserDownload_Checked"
+                      Unchecked="UseChromeBrowserDownload_Unchecked"/>
+        </StackPanel>
+
+        <!-- Buttons Section -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <Button x:Name="DownloadData" 
+                    Content="Download Data" 
+                    Click="DownloadData_Click"
+                    Style="{StaticResource AccentButtonStyle}"/>
+            <Button x:Name="DelData" 
+                    Content="Delete Downloads" 
+                    Click="DelData_Click"/>
+            <Button x:Name="Audio" 
+                    Content="Extract Audio" 
+                    Click="Audio_Click"/>
+        </StackPanel>
+
+        <!-- Progress Bar -->
+        <ProgressBar x:Name="ProgressBar" 
+                     Grid.Row="3"
+                     Height="20"
+                     Margin="0,0,0,10"
+                     Visibility="Collapsed"/>
+
+        <!-- Log Box -->
+        <ScrollViewer Grid.Row="6" 
+                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                      BorderThickness="1"
+                      Margin="0,10,0,0">
+            <TextBlock x:Name="LogBox" 
+                       TextWrapping="Wrap"
+                       Padding="10"
+                       FontFamily="Consolas"/>
+        </ScrollViewer>
+    </Grid>
+</Window>
